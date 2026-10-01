@@ -159,7 +159,7 @@
     cuandoVisible([el], 0.3, function () { revelar(el, piezas); });
   });
 
-  /* ───────────────── cortina corta: la hoja y su nombre; la corona se construye en el hero ───────────────── */
+  /* ───────────────── cortina A · tapa dorada: la corona grabada se dora y la tapa se abre ───────────────── */
   var cortinaAbierta = false;
   function avisarApertura() {
     if (cortinaAbierta) return;
@@ -173,15 +173,15 @@
   (function cortina() {
     var cort = document.getElementById('cortina');
     if (!cort) { avisarApertura(); return; }
-    var panel = document.getElementById('cortina-panel');
-    var flecos = document.getElementById('cortina-flecos');
-    var contenido = document.getElementById('cortina-contenido');
-    var hoja = cort.querySelector('.cortina__hoja');
+    var tapa = document.getElementById('cortina-panel');
+    var sombra = document.getElementById('cortina-sombra');
+    var brillo = document.getElementById('cortina-brillo');
+    var oro = document.getElementById('cortina-oro-pleno');
     var nombre = cort.querySelector('.cortina__nombre span');
     var pie = cort.querySelector('.cortina__abogada');
     var liberada = false, hecho = false;
 
-    /* el panel ya ha subido: se puede bajar aunque las hojas de la guirnalda sigan cayendo */
+    /* la tapa ya se ha abierto: se puede bajar aunque falte el último fundido */
     function liberar() {
       if (liberada) return;
       liberada = true;
@@ -207,47 +207,35 @@
     window.scrollTo(0, 0);
     if (lenis) lenis.stop();
 
-    /* la guirnalda: hojas colgando del borde, alternando el lado, con algo de azar */
-    var ns = 'http://www.w3.org/2000/svg';
-    var n = Math.max(10, Math.min(26, Math.round(window.innerWidth / 58)));
-    var hojas = [];
-    for (var i = 0; i < n; i++) {
-      var s = document.createElementNS(ns, 'svg');
-      s.setAttribute('viewBox', '0 0 136 75');
-      s.setAttribute('class', 'cortina__fleco');
-      s.setAttribute('aria-hidden', 'true');
-      var u = document.createElementNS(ns, 'use');
-      u.setAttribute('href', '#hoja');
-      s.appendChild(u);
-      s.style.left = ((i + 0.5) / n * 100) + '%';
-      flecos.appendChild(s);
-      hojas.push(s);
+    /* el haz de luz: la máscara del oro se desplaza de derecha a izquierda */
+    var luz = { p: 120 };
+    /* la franja de luz va de izquierda a derecha (máscara de 320 %: centro en x = 1,6 − 2,2·p);
+       el oro pleno se queda pintado justo detrás de ella, con un recorte que la sigue */
+    function ponerLuz() {
+      var v = luz.p.toFixed(2) + '% 0'; brillo.style.webkitMaskPosition = v; brillo.style.maskPosition = v;
+      var f = Math.max(0, Math.min(1, 1.6 - 2.2 * luz.p / 100 - 0.04));
+      oro.style.clipPath = 'inset(0 ' + ((1 - f) * 100).toFixed(2) + '% 0 0)';
     }
-    gsap.set(hojas, { xPercent: -50, rotation: function (k) { return (k % 2 ? 160 : 20) + gsap.utils.random(-14, 14); }, transformOrigin: '50% 50%' });
+    Aurea.cortinaLuz = function () { return luz.p; };
 
-    var SALE = 1.45;
+    var SALE = 1.8;
     var tl = gsap.timeline({ paused: true, onComplete: retirar });
-    /* 1 · la hoja dorada se abre girando · 2 · el nombre sube de su máscara · 3 · «ABOGADA» asienta el espaciado */
-    tl.fromTo(hoja, { opacity: 0, scale: 0.55, rotation: -60 }, { opacity: 1, scale: 1, rotation: -14, duration: 1.1, ease: 'expo.out', immediateRender: false }, 0.05)
-      .fromTo(nombre, { y: 0, yPercent: 110 }, { y: 0, yPercent: 0, duration: 0.95, ease: 'expo.out', immediateRender: false }, 0.3)
-      .fromTo(pie, { letterSpacing: '1.1em', opacity: 0 }, { letterSpacing: '.6em', opacity: 1, duration: 1.1, ease: 'expo.out', immediateRender: false }, 0.5)
-    /* 4 · el panel tinta sube con expo.inOut y paralaje interno… */
+    /* 1 · el nombre sube de su máscara y «ABOGADA» asienta · 2 · la luz recorre la corona grabada */
+    tl.fromTo(nombre, { y: 0, yPercent: 110 }, { y: 0, yPercent: 0, duration: 1, ease: 'expo.out', immediateRender: false }, 0.25)
+      .fromTo(pie, { letterSpacing: '1.1em', opacity: 0 }, { letterSpacing: '.6em', opacity: 1, duration: 1.1, ease: 'expo.out', immediateRender: false }, 0.45)
+      .to(luz, { p: -20, duration: 1.35, ease: 'power2.inOut', onUpdate: ponerLuz }, 0.2)
+    /* 3 · el oro se queda entero (fundido de la copia plena; el brillo se va) */
+      .to(brillo, { opacity: 0, duration: 0.35 }, 1.45)
+    /* 4 · la tapa se abre sobre el lomo (nunca se queda a 90º: sigue hasta 104º y se funde) */
       .call(avisarApertura, null, SALE)
-      .to(contenido, { yPercent: -40, opacity: 0, duration: 0.7, ease: 'power2.in' }, SALE)
-      .to(panel, { yPercent: -100, duration: 1.1, ease: 'expo.inOut' }, SALE)
-      .call(liberar, null, SALE + 1.1)
-    /* 5 · …y las hojas de la guirnalda se desprenden y caen sobre la web, girando */
-      .to(hojas, {
-        y: function () { return window.innerHeight * gsap.utils.random(1.1, 1.55); },
-        x: function () { return gsap.utils.random(-90, 90); },
-        rotation: function () { return '+=' + gsap.utils.random(-240, 240); },
-        duration: function () { return gsap.utils.random(1.5, 2.2); },
-        ease: 'power1.in', stagger: { each: 0.03, from: 'random' }
-      }, SALE + 0.45)
-      .to(hojas, { opacity: 0, duration: 0.5, ease: 'power1.in', stagger: { each: 0.03, from: 'random' } }, SALE + 1.55);
+      .to(sombra, { opacity: 1, duration: 0.45, ease: 'power1.out' }, SALE)
+      .to(tapa, { rotationY: -104, duration: 1.25, ease: 'expo.inOut' }, SALE)
+      .to(tapa, { opacity: 0, duration: 0.3, ease: 'power1.in' }, SALE + 0.85)
+      .to(sombra, { opacity: 0, duration: 0.55, ease: 'power1.in' }, SALE + 0.75)
+      .call(liberar, null, SALE + 1.15);
 
     var arrancada = false;
-    function arrancar() { if (!arrancada) { arrancada = true; tl.play(); } }
+    function arrancar() { if (!arrancada) { arrancada = true; ponerLuz(); tl.play(); } }
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(arrancar);
     setTimeout(arrancar, 450);
     /* quien empieza a bajar no espera: la cortina acelera, no se corta */

@@ -156,39 +156,60 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .map-consent-caja p { max-width: 22rem; font-size: 1rem; color: var(--apagado); }
 
-/* ═══════════════ cortina: la corona crece sobre tinta ═══════════════ */
+/* ═══════════════ cortina A · tapa dorada: la tapa de un libro de leyes ═══════════════ */
 .cortina {
   position: fixed; inset: 0; z-index: 900;
   display: none;
   pointer-events: none;
   overflow: hidden;
+  perspective: 2200px;
+  background: transparent;
 }
 .cortina[hidden] { display: none; }            /* su propia regla: [hidden] no gana a display:block */
 html.con-js .cortina { display: block; }
 /* la retirada repite el ancestro: si no, pierde en especificidad (memoria) */
 html.con-js .cortina.es-fuera,
 html.con-js.cortina-fuera .cortina { display: none; }
+/* la tapa: piel oscura con grano, gira sobre el lomo (borde izquierdo) */
 .cortina__panel {
   position: absolute; inset: 0;
-  background: var(--tinta);
+  background-color: var(--tinta);
+  background-image: radial-gradient(120% 90% at 30% 20%, #25221D, var(--tinta) 65%);
+  transform-origin: 0 50%;
+  backface-visibility: hidden;
   will-change: transform;
 }
-/* guirnalda: el borde del panel es una fila de hojas de laurel que cuelgan;
-   al subir el panel se desprenden y caen sobre la web (las pone el JS) */
-.cortina__flecos { position: absolute; left: 0; right: 0; top: 100%; height: 0; }
-.cortina__fleco { position: absolute; top: -1.15rem; width: clamp(2.1rem, 3.4vw, 3rem); max-width: none; height: auto; fill: var(--oro-claro); }
-/* contenido de la cortina: la hoja dorada, su nombre y «ABOGADA» */
+.cortina__panel::before {
+  content: ''; position: absolute; inset: 0; opacity: .55; mix-blend-mode: overlay; pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .45  0 0 0 0 .38  0 0 0 .55 0'/></filter><rect width='160' height='160' filter='url(%23g)'/></svg>");
+}
+/* sombra que la tapa proyecta sobre la página al abrirse */
+.cortina__sombra { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(21, 20, 18, .42), rgba(21, 20, 18, 0) 62%); opacity: 0; }
 .cortina__contenido {
   position: absolute; inset: 0;
-  display: grid; place-content: center; justify-items: center; gap: clamp(.7rem, 2vh, 1.1rem);
+  display: grid; place-content: center; justify-items: center; gap: clamp(.8rem, 2.2vh, 1.3rem);
   color: var(--marfil); text-align: center;
 }
-.cortina__hoja { width: clamp(4rem, 9vw, 6rem); height: auto; max-width: none; fill: var(--oro-claro); }
-.con-js .cortina__hoja { opacity: 0; }
-.cortina__nombre { overflow: hidden; padding: .12em .05em .06em; font: 700 clamp(2rem, 6vw, 4.2rem)/1.1 var(--tipo-rotulo); }
+/* la corona grabada: relieve con dos copias desplazadas (sombra y luz), sin filtros */
+.cortina__estampa { position: relative; width: clamp(150px, min(30vw, 32vh), 300px); aspect-ratio: 1006 / 818; }
+.cortina__estampa svg { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; overflow: visible; }
+.cortina__relieve .sombra-r { fill: rgba(0, 0, 0, .55); }
+.cortina__relieve .luz-r { fill: rgba(246, 242, 234, .07); }
+.cortina__relieve .cara-r { fill: #1E1C18; }
+/* el haz de luz descubre el oro (máscara en movimiento) y después el oro queda entero */
+.cortina__brillo, .cortina__oro { fill: url(#cortina-oro); }
+.cortina__brillo {
+  -webkit-mask-image: linear-gradient(100deg, transparent 0 36%, #000 47%, #000 53%, transparent 64% 100%);
+          mask-image: linear-gradient(100deg, transparent 0 36%, #000 47%, #000 53%, transparent 64% 100%);
+  -webkit-mask-size: 320% 100%; mask-size: 320% 100%;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: 120% 0; mask-position: 120% 0;
+}
+.con-js .cortina__oro { clip-path: inset(0 100% 0 0); }
+.cortina__nombre { overflow: hidden; padding: .12em .05em .06em; font: 700 clamp(1.7rem, 4.6vw, 3.2rem)/1.1 var(--tipo-rotulo); }
 .cortina__nombre span { display: inline-block; }
 .con-js .cortina__nombre span { transform: translateY(110%); }
-.cortina__abogada { font: 600 clamp(.85rem, 1.4vw, 1.05rem)/1 var(--tipo-rotulo); letter-spacing: .6em; margin-left: .6em; text-transform: uppercase; color: var(--oro-claro); }
+.cortina__abogada { font: 600 clamp(.8rem, 1.3vw, 1rem)/1 var(--tipo-rotulo); letter-spacing: .6em; margin-left: .6em; text-transform: uppercase; color: var(--oro-claro); }
 .con-js .cortina__abogada { opacity: 0; }
 
 /* ═══════════════ cabecera ═══════════════ */

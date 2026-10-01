@@ -67,7 +67,7 @@ async function nuevaPagina(navegador, op = {}) {
   return { contexto, page, errores, caidas };
 }
 const esperarCortina = page => page.waitForFunction(() => { const c = document.getElementById('cortina'); return !c || getComputedStyle(c).display === 'none'; }, null, { timeout: 9000 }).catch(() => {});
-const propias = c => c.filter(x => !/favicon\.ico|google\.com\/maps|gstatic|googleapis\.com\/maps|places\.googleapis|maps\.google|googleusercontent/.test(x));
+const propias = c => c.filter(x => !/favicon\.ico|google\.com\/maps|gstatic|googleapis\.com\/maps|places\.googleapis|maps\.google|googleusercontent|family=Roboto|Google\+Sans/.test(x));
 
 const PUERTO = 4211;
 const base = 'http://127.0.0.1:' + PUERTO;
@@ -183,12 +183,9 @@ try {
   {
     const { contexto, page, errores, caidas } = await nuevaPagina(navegador);
     await page.goto(base + '/index.html', { waitUntil: 'domcontentloaded' });
-    const muestras = [];
-    const t0 = Date.now();
-    const instantes = [350, 1000, 1700, 2300, 2900, 3700];
-    let capt = 0;
-    while (Date.now() - t0 < 6200) {
-      const m = await page.evaluate(() => {
+    /* el muestreo corre DENTRO de la página, en cada fotograma (requestAnimationFrame):
+       así las capturas no abren huecos justo cuando la tapa gira o el monograma cae */
+    const muestra = () => {
         const c = document.getElementById('cortina'); if (!c) return null;
         const mtx = e => { const t = getComputedStyle(e).transform; if (t === 'none') return [1, 0, 0, 1, 0, 0]; return t.replace(/matrix\(|\)/g, '').split(',').map(Number); };
         const panel = document.getElementById('cortina-panel');
@@ -197,8 +194,8 @@ try {
         const mono = document.querySelector('.hero__mono');
         const clipMono = (getComputedStyle(mono).clipPath.match(/inset\(([^)]*)\)/) || [, '0 0 0 0'])[1].split(' ').map(parseFloat);
         return {
-          display: getComputedStyle(c).display, panel: getComputedStyle(panel).backgroundColor, ty: mtx(panel)[5], h: innerHeight,
-          hoja: +getComputedStyle(c.querySelector('.cortina__hoja')).opacity,
+          display: getComputedStyle(c).display, panel: getComputedStyle(panel).backgroundColor, h: innerHeight, giro: (function () { const t = getComputedStyle(panel).transform; if (t.indexOf('matrix3d(') !== 0) return 0; const a = t.slice(9, -1).split(',').map(Number); return Math.atan2(-a[2], a[0]) * 180 / Math.PI; })(), opTapa: +getComputedStyle(panel).opacity,
+          luz: window.Aurea && window.Aurea.cortinaLuz ? window.Aurea.cortinaLuz() : 120, oroDer: (function () { const cp = getComputedStyle(document.getElementById('cortina-oro-pleno')).clipPath; if (cp === 'none') return 0; const p = cp.slice(cp.indexOf('(') + 1, cp.indexOf(')')).trim().split(' '); return parseFloat(p[1] || p[0]); })(), sombra: +getComputedStyle(document.getElementById('cortina-sombra')).opacity,
           nombre: mtx(c.querySelector('.cortina__nombre span'))[5] / (c.querySelector('.cortina__nombre span').offsetHeight || 1),
           lejos, oroMedio: hojas.reduce((s, h) => s + +getComputedStyle(h).opacity, 0) / hojas.length,
           base: +getComputedStyle(document.querySelector('.hero__rama > use:not(.hero__hoja)')).opacity,
@@ -206,22 +203,29 @@ try {
           giros: [getComputedStyle(mono).transform, mono.getAttribute('transform') || 'none', getComputedStyle(document.querySelector('#hero-corona svg')).transform],
           animMono: mono.getAnimations().length + document.querySelector('#hero-corona svg').getAnimations().length,
           viento: !!(window.Aurea && window.Aurea.viento && window.Aurea.viento.activo()),
-          flecos: c.querySelectorAll('.cortina__fleco').length,
-          caida: Math.max(0, ...[...c.querySelectorAll('.cortina__fleco')].map(f => mtx(f)[5]))
+          tapa: true,
+          ty: 0
         };
-      });
-      if (!m) break;
-      muestras.push({ t: Date.now() - t0, ...m });
-      if (conCapturas && capt < instantes.length && Date.now() - t0 >= instantes[capt]) { await page.screenshot({ path: foto('00' + 'abcdef'[capt] + '-cortina-bandada.png') }); capt++; }
-      await page.waitForTimeout(30);
+    };
+    await page.evaluate(`(() => { const f = ${muestra.toString()}; window.__m = []; const t0 = performance.now(); (function paso() { const m = f(); if (m) window.__m.push(Object.assign({ t: Math.round(performance.now() - t0) }, m)); if (performance.now() - t0 < 6200) requestAnimationFrame(paso); })(); })(); 0`);
+    const t0 = Date.now();
+    const instantes = [350, 1000, 1700, 2450, 3000, 3700];
+    for (let capt = 0; capt < instantes.length; capt++) {
+      while (Date.now() - t0 < instantes[capt]) await page.waitForTimeout(15);
+      if (conCapturas) await page.screenshot({ path: foto('00' + 'abcdef'[capt] + '-cortina-bandada.png') });
     }
+    while (Date.now() - t0 < 6400) await page.waitForTimeout(50);
+    const muestras = await page.evaluate(() => window.__m);
     const al = muestras.find(m => m.t < 300);
     const fondoHero = await page.evaluate(() => getComputedStyle(document.getElementById('inicio')).backgroundColor);
     comprobar(al && al.display === 'block' && /21, 20, 18/.test(al.panel) && al.panel !== fondoHero, 'checklist 5 · cortina: tapa al cargar, en tinta (' + (al && al.panel) + '), distinta del hero marfil');
-    comprobar(muestras.some(m => m.display === 'block' && m.hoja > 0.9) && muestras.some(m => m.display === 'block' && Math.abs(m.nombre) < 0.05 && m.ty > -5), 'cortina 1-3 · la hoja dorada se abre, el nombre sube de su máscara y «ABOGADA» asienta (antes de que suba el panel)');
-    comprobar(muestras[0] && muestras[0].flecos >= 10 && muestras.some(m => m.caida > m.h * 0.5), 'cortina D · guirnalda: ' + (muestras[0] ? muestras[0].flecos : 0) + ' hojas cuelgan del borde del panel y se desprenden al subir (caen ' + Math.round(Math.max(...muestras.map(m => m.caida))) + ' px)');
-    const medias = muestras.find(m => m.display === 'block' && m.ty < -m.h * 0.08 && m.ty > -m.h * 0.92);
-    comprobar(!!medias, 'cortina 4 · fotograma a medias: el panel tinta subiendo (y = ' + (medias ? Math.round(medias.ty) : '—') + ' px)');
+    comprobar(muestras.some(m => m.display === 'block' && m.luz > 20 && m.luz < 80) && muestras.some(m => m.display === 'block' && Math.abs(m.nombre) < 0.05 && Math.abs(m.giro) < 1), 'cortina A · 1-3: la luz recorre la corona grabada y el nombre sube de su máscara, con la tapa aún cerrada');
+    const oroLleno = muestras.find(m => m.display === 'block' && m.oroDer < 0.5 && Math.abs(m.giro) < 1);
+    const oroMedio = muestras.find(m => m.display === 'block' && m.oroDer > 10 && m.oroDer < 90);
+    comprobar(!!oroMedio && !!oroLleno, 'cortina A · el oro se queda pintado detrás del haz de luz y la corona acaba entera en oro antes de abrirse');
+    const medias = muestras.find(m => m.display === 'block' && m.giro < -20 && m.giro > -88 && m.opTapa > 0.5);
+    comprobar(!!medias && muestras.some(m => m.sombra > 0.5), 'cortina A · 4 · fotograma a medias: la tapa abriéndose sobre el lomo (' + (medias ? Math.round(medias.giro) + 'º' : '—') + ') y su sombra sobre la página');
+    comprobar(muestras.every(m => m.display !== 'block' || m.giro > -105.5), 'cortina A · la tapa no pasa de ~104º (nunca se queda de canto a 90º: se funde)');
     /* bandada */
     const volando = muestras.find(m => m.lejos > 300 && m.oroMedio > 0.3);
     const sinRama = muestras.find(m => m.lejos > 300 && m.base < 0.1);

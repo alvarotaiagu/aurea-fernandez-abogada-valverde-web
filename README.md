@@ -7,7 +7,7 @@
 ```
 node scripts/servir.mjs                 → http://127.0.0.1:4210  (hace falta HTTP: las viñetas son mask-image)
 http://127.0.0.1:4210/?revision         → con el mando de las dos versiones
-node scripts/verificar.mjs              → 188 comprobaciones (con --capturas guarda screenshots/)
+node scripts/verificar.mjs              → 189 comprobaciones (con --capturas guarda screenshots/)
 ```
 
 Si cambias datos o textos, ejecuta en este orden: `node scripts/construir.mjs` → `python scripts/logo.py` → `node scripts/versionar.mjs`.
@@ -120,7 +120,7 @@ El tablero con los cinco heros y los seis indicadores está en `../aurea-fernand
 
 | Pieza | Qué hace |
 |---|---|
-| **Cortina D · Guirnalda** (elegida en `../aurea-fernandez-abogada-valverde-bocetos/cortina/`) | Sobre tinta, la hoja dorada se abre girando, «Áurea Mª Fernández» sube de su máscara y «ABOGADA» asienta. El panel sube con `expo.inOut`, y su borde es una guirnalda de hojas de laurel (entre 10 y 26, según el ancho) que se desprenden y caen sobre la web girando. El scroll se libera en cuanto el panel termina de subir, sin esperar a que caigan. |
+| **Cortina A · Tapa dorada** (elegida en `../aurea-fernandez-abogada-valverde-bocetos/cortina/`) | La pantalla es la tapa de un libro de leyes en piel oscura, con grano. La corona está grabada en relieve (dos copias desplazadas, sin filtros), un haz de luz la recorre de izquierda a derecha y el oro se queda pintado detrás de él. El nombre sube de su máscara y «ABOGADA» asienta. La tapa se abre girando sobre el lomo, proyecta su sombra, sigue hasta 104º y se funde: nunca se queda de canto a 90º. Al abrirse arranca la bandada, y el scroll se libera en cuanto se ha abierto. |
 | **Hero A · Bandada** | Cuando el panel empieza a subir, las 24 hojas reales del logo entran volando desde toda la pantalla (sin recorte) y se posan cada una en su sitio exacto. Solo entonces pasan del oro a tinta mientras aparece la rama de debajo: es la misma forma, así que no se ve doble. El monograma cae por recorte durante el vuelo. Después, el nombre letra a letra. El origen de giro se fija con la hoja en reposo y sin `smoothOrigin`; si no, GSAP deja la hoja «posada» desplazada unas 50 unidades. No se ejecuta en la sobria, ni al volver por el paso entre páginas, ni con movimiento reducido. Red de seguridad a 9 s. |
 | **Hero D · Hojas al viento** | Cuando la bandada se posa, una ráfaga suelta hojas doradas que cruzan el hero y caen meciéndose. El ratón hace de viento. Es un canvas con la hoja pintada una vez por tono y copiada, sin filtros por fotograma. Se para fuera de pantalla y en la sobria. |
 | **Indicador 3 · Rueda de texto** | «Baja · Descubre» gira despacio alrededor de la hoja. Al pasar el ratón el centro se dora, y es magnético. Al pulsarla baja a las áreas. Cabe entera en la primera pantalla desde 1280×720, y se apaga al bajar. |
