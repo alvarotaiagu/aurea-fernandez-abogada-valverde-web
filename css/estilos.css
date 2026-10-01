@@ -624,7 +624,8 @@ html.con-cursor, html.con-cursor * { cursor: none !important; }
   .areas__indice a span { display: none; }
   .areas__indice a.es-activa span { display: inline; }
   .sobre, .escribeme { grid-template-columns: 1fr; }
-  .sobre__retrato { position: static; width: min(100%, 24rem); }
+  .sobre__retrato { position: static; width: min(100%, 24rem); margin-inline: auto; }
+  .escribeme__retrato { margin-inline: auto; }
   .notas__lista { grid-template-columns: 1fr; }
   .pie__rejilla { grid-template-columns: 1fr; }
 }
