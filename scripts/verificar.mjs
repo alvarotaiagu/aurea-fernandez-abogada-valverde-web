@@ -205,7 +205,9 @@ try {
           mono: clipMono[2] || 0,
           giros: [getComputedStyle(mono).transform, mono.getAttribute('transform') || 'none', getComputedStyle(document.querySelector('#hero-corona svg')).transform],
           animMono: mono.getAnimations().length + document.querySelector('#hero-corona svg').getAnimations().length,
-          viento: !!(window.Aurea && window.Aurea.viento && window.Aurea.viento.activo())
+          viento: !!(window.Aurea && window.Aurea.viento && window.Aurea.viento.activo()),
+          flecos: c.querySelectorAll('.cortina__fleco').length,
+          caida: Math.max(0, ...[...c.querySelectorAll('.cortina__fleco')].map(f => mtx(f)[5]))
         };
       });
       if (!m) break;
@@ -217,6 +219,7 @@ try {
     const fondoHero = await page.evaluate(() => getComputedStyle(document.getElementById('inicio')).backgroundColor);
     comprobar(al && al.display === 'block' && /21, 20, 18/.test(al.panel) && al.panel !== fondoHero, 'checklist 5 · cortina: tapa al cargar, en tinta (' + (al && al.panel) + '), distinta del hero marfil');
     comprobar(muestras.some(m => m.display === 'block' && m.hoja > 0.9) && muestras.some(m => m.display === 'block' && Math.abs(m.nombre) < 0.05 && m.ty > -5), 'cortina 1-3 · la hoja dorada se abre, el nombre sube de su máscara y «ABOGADA» asienta (antes de que suba el panel)');
+    comprobar(muestras[0] && muestras[0].flecos >= 10 && muestras.some(m => m.caida > m.h * 0.5), 'cortina D · guirnalda: ' + (muestras[0] ? muestras[0].flecos : 0) + ' hojas cuelgan del borde del panel y se desprenden al subir (caen ' + Math.round(Math.max(...muestras.map(m => m.caida))) + ' px)');
     const medias = muestras.find(m => m.display === 'block' && m.ty < -m.h * 0.08 && m.ty > -m.h * 0.92);
     comprobar(!!medias, 'cortina 4 · fotograma a medias: el panel tinta subiendo (y = ' + (medias ? Math.round(medias.ty) : '—') + ' px)');
     /* bandada */
@@ -225,6 +228,8 @@ try {
     const posadas = muestras.filter(m => m.t > 4500);
     const final = posadas[posadas.length - 1] || {};
     comprobar(!!volando && !!sinRama, 'bandada · las 24 hojas entran volando desde lejos (' + (volando ? Math.round(volando.lejos) : '—') + ' unidades del logo) antes de que aparezca la rama');
+    const cambio = muestras.filter(m => m.base > 0.03 && m.base < 0.97);
+    comprobar(cambio.length > 0 && cambio.every(m => m.lejos < 0.5), 'bandada · la rama aparece y el oro pasa a tinta SOLO con las 24 hojas ya posadas en su sitio exacto (desvío máx. ' + (cambio.length ? Math.max(...cambio.map(m => m.lejos)).toFixed(1) : '—') + ')');
     comprobar(final.lejos === 0 && final.base > 0.95 && final.oroMedio < 0.05 && final.mono < 0.5, 'bandada · al final las hojas están posadas, la rama puesta, el oro apagado y el monograma entero');
     comprobar(muestras.some(m => m.mono > 5 && m.mono < 95), 'bandada · el monograma cae por recorte de arriba abajo');
     comprobar(muestras.some(m => m.t > 3000 && m.viento) && !muestras.some(m => m.t < 1500 && m.viento), 'hojas al viento · empiezan cuando la bandada se posa');

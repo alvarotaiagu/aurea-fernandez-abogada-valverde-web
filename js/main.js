@@ -174,24 +174,30 @@
     var cort = document.getElementById('cortina');
     if (!cort) { avisarApertura(); return; }
     var panel = document.getElementById('cortina-panel');
-    var borde = document.getElementById('cortina-borde');
+    var flecos = document.getElementById('cortina-flecos');
     var contenido = document.getElementById('cortina-contenido');
     var hoja = cort.querySelector('.cortina__hoja');
     var nombre = cort.querySelector('.cortina__nombre span');
     var pie = cort.querySelector('.cortina__abogada');
-    var hecho = false;
+    var liberada = false, hecho = false;
 
-    function retirar() {
-      if (hecho) return;
-      hecho = true;
+    /* el panel ya ha subido: se puede bajar aunque las hojas de la guirnalda sigan cayendo */
+    function liberar() {
+      if (liberada) return;
+      liberada = true;
       avisarApertura();
-      cort.classList.add('es-fuera');
-      html.classList.add('cortina-fuera');
       /* con Lenis, lagSmoothing(0) al retirarla, nunca antes */
       if (gsapReady) gsap.ticker.lagSmoothing(0);
       if (lenis) lenis.start();
       refrescar();
       document.dispatchEvent(new CustomEvent('cortina-retirada'));
+    }
+    function retirar() {
+      if (hecho) return;
+      hecho = true;
+      liberar();
+      cort.classList.add('es-fuera');
+      html.classList.add('cortina-fuera');
     }
     Aurea.retirarCortina = retirar;
 
@@ -201,18 +207,44 @@
     window.scrollTo(0, 0);
     if (lenis) lenis.stop();
 
+    /* la guirnalda: hojas colgando del borde, alternando el lado, con algo de azar */
+    var ns = 'http://www.w3.org/2000/svg';
+    var n = Math.max(10, Math.min(26, Math.round(window.innerWidth / 58)));
+    var hojas = [];
+    for (var i = 0; i < n; i++) {
+      var s = document.createElementNS(ns, 'svg');
+      s.setAttribute('viewBox', '0 0 136 75');
+      s.setAttribute('class', 'cortina__fleco');
+      s.setAttribute('aria-hidden', 'true');
+      var u = document.createElementNS(ns, 'use');
+      u.setAttribute('href', '#hoja');
+      s.appendChild(u);
+      s.style.left = ((i + 0.5) / n * 100) + '%';
+      flecos.appendChild(s);
+      hojas.push(s);
+    }
+    gsap.set(hojas, { xPercent: -50, rotation: function (k) { return (k % 2 ? 160 : 20) + gsap.utils.random(-14, 14); }, transformOrigin: '50% 50%' });
+
     var SALE = 1.45;
     var tl = gsap.timeline({ paused: true, onComplete: retirar });
     /* 1 · la hoja dorada se abre girando · 2 · el nombre sube de su máscara · 3 · «ABOGADA» asienta el espaciado */
     tl.fromTo(hoja, { opacity: 0, scale: 0.55, rotation: -60 }, { opacity: 1, scale: 1, rotation: -14, duration: 1.1, ease: 'expo.out', immediateRender: false }, 0.05)
       .fromTo(nombre, { y: 0, yPercent: 110 }, { y: 0, yPercent: 0, duration: 0.95, ease: 'expo.out', immediateRender: false }, 0.3)
       .fromTo(pie, { letterSpacing: '1.1em', opacity: 0 }, { letterSpacing: '.6em', opacity: 1, duration: 1.1, ease: 'expo.out', immediateRender: false }, 0.5)
-    /* 4 · el panel tinta sube con expo.inOut, con paralaje interno y el borde curvo que se aplana */
+    /* 4 · el panel tinta sube con expo.inOut y paralaje interno… */
       .call(avisarApertura, null, SALE)
       .to(contenido, { yPercent: -40, opacity: 0, duration: 0.7, ease: 'power2.in' }, SALE)
       .to(panel, { yPercent: -100, duration: 1.1, ease: 'expo.inOut' }, SALE)
-      .fromTo(borde, { scaleY: 0 }, { scaleY: 1, duration: 0.45, ease: 'power2.out', immediateRender: false }, SALE)
-      .to(borde, { scaleY: 0, duration: 0.6, ease: 'power2.inOut' }, SALE + 0.45);
+      .call(liberar, null, SALE + 1.1)
+    /* 5 · …y las hojas de la guirnalda se desprenden y caen sobre la web, girando */
+      .to(hojas, {
+        y: function () { return window.innerHeight * gsap.utils.random(1.1, 1.55); },
+        x: function () { return gsap.utils.random(-90, 90); },
+        rotation: function () { return '+=' + gsap.utils.random(-240, 240); },
+        duration: function () { return gsap.utils.random(1.5, 2.2); },
+        ease: 'power1.in', stagger: { each: 0.03, from: 'random' }
+      }, SALE + 0.45)
+      .to(hojas, { opacity: 0, duration: 0.5, ease: 'power1.in', stagger: { each: 0.03, from: 'random' } }, SALE + 1.55);
 
     var arrancada = false;
     function arrancar() { if (!arrancada) { arrancada = true; tl.play(); } }
@@ -246,7 +278,9 @@
     /* estado de partida, antes de que se vea nada (la cortina tapa) */
     gsap.set(bases, { opacity: 0 });
     gsap.set(mono, { clipPath: 'inset(0% 0% 100% 0%)' });
-    gsap.set(hojas, { opacity: 0 });
+    /* el origen de giro se fija con la hoja EN REPOSO y sin smoothOrigin: si se fija dentro del
+       tween (con la hoja ya girada) GSAP compensa y la hoja «posada» queda desplazada ~50 unidades */
+    gsap.set(hojas, { opacity: 0, transformOrigin: '50% 50%', smoothOrigin: false });
     Aurea.alAbrirse(function () {
       /* desde toda la pantalla: 1 px de pantalla = 1006 / ancho de la corona en unidades del logo */
       var r = svg.getBoundingClientRect();
@@ -260,14 +294,18 @@
         rotation: function () { return gsap.utils.random(-260, 260); },
         scale: function () { return gsap.utils.random(0.4, 1.9); }
       }, {
-        opacity: 1, x: 0, y: 0, rotation: 0, scale: 1, transformOrigin: '50% 50%',
-        duration: 1.7, ease: 'expo.out', stagger: { each: 0.032, from: 'random' }, immediateRender: true
-      }, 0.15)
-      /* al posarse aparece la rama, el oro se apaga y cae el monograma (la balanza, quieta) */
-        .to(bases, { opacity: 1, duration: 0.7, ease: 'power1.inOut' }, 1.45)
-        .to(hojas, { opacity: 0, duration: 0.7, ease: 'power1.in', stagger: { each: 0.018, from: 'end' } }, 1.7)
-        .fromTo(mono, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.85, ease: 'expo.out', immediateRender: false }, 1.75)
-        .set(hojas, { clearProps: 'transform' });
+        opacity: 1, x: 0, y: 0, rotation: 0, scale: 1,
+        duration: 1.35, ease: 'expo.out', stagger: { each: 0.022, from: 'random' }, immediateRender: true
+      }, 0.1)
+      /* mientras vuelan, cae el monograma (recorte de arriba abajo; la balanza, quieta) */
+        .fromTo(mono, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.85, ease: 'expo.out', immediateRender: false }, 1.0);
+      /* SOLO cuando la última hoja se ha posado: las hojas pasan del oro a tinta en su sitio
+         y a la vez aparece la rama de debajo (son la misma forma: no se ve doble) */
+      var posadas = tl.duration();
+      tl.to(hojas, { fill: '#151412', duration: 0.55, ease: 'power1.inOut', stagger: { each: 0.012, from: 'start' } }, posadas)
+        .to(bases, { opacity: 1, duration: 0.55, ease: 'power1.inOut' }, posadas)
+      /* cambio invisible: la rama completa ya está debajo; las copias vuelven a ser el oro del cursor */
+        .set(hojas, { opacity: 0, clearProps: 'transform,fill' });
       Aurea.bandada = tl;
       /* quien empieza a bajar no espera */
       var prisa = function () { if (tl.progress() < 1) tl.timeScale(3); };

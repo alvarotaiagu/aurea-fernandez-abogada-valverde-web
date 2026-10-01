@@ -173,14 +173,10 @@ html.con-js.cortina-fuera .cortina { display: none; }
   background: var(--tinta);
   will-change: transform;
 }
-/* borde curvo bajo el panel: se aplana mientras sube */
-.cortina__borde {
-  position: absolute; left: -10%; right: -10%; top: calc(100% - 1px);
-  height: 14vh;
-  background: var(--tinta);
-  border-radius: 0 0 50% 50% / 0 0 100% 100%;
-  transform-origin: 50% 0; transform: scaleY(0);
-}
+/* guirnalda: el borde del panel es una fila de hojas de laurel que cuelgan;
+   al subir el panel se desprenden y caen sobre la web (las pone el JS) */
+.cortina__flecos { position: absolute; left: 0; right: 0; top: 100%; height: 0; }
+.cortina__fleco { position: absolute; top: -1.15rem; width: clamp(2.1rem, 3.4vw, 3rem); max-width: none; height: auto; fill: var(--oro-claro); }
 /* contenido de la cortina: la hoja dorada, su nombre y «ABOGADA» */
 .cortina__contenido {
   position: absolute; inset: 0;
@@ -290,7 +286,7 @@ html.con-js.cortina-fuera .cortina { display: none; }
   aspect-ratio: 1006 / 818;
   fill: var(--tinta);
 }
-.hero__corona svg { width: 100%; height: 100%; }
+.hero__corona svg { width: 100%; height: 100%; overflow: visible; }   /* las hojas vuelan desde fuera de la caja: sin recorte */
 .hero__nombre {
   margin-top: clamp(1rem, 3.4vh, 2rem);
   max-width: 22ch;
