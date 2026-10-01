@@ -67,7 +67,7 @@ async function nuevaPagina(navegador, op = {}) {
   return { contexto, page, errores, caidas };
 }
 const esperarCortina = page => page.waitForFunction(() => { const c = document.getElementById('cortina'); return !c || getComputedStyle(c).display === 'none'; }, null, { timeout: 9000 }).catch(() => {});
-const propias = c => c.filter(x => !/favicon\.ico|google\.com\/maps|gstatic|googleapis\.com\/maps|maps\.google|googleusercontent/.test(x));
+const propias = c => c.filter(x => !/favicon\.ico|google\.com\/maps|gstatic|googleapis\.com\/maps|places\.googleapis|maps\.google|googleusercontent/.test(x));
 
 const PUERTO = 4211;
 const base = 'http://127.0.0.1:' + PUERTO;

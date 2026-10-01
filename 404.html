@@ -4,6 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow">
+<script>(function () { var m = location.pathname.match(/^(.*?)\/Blog\/All\/?$/); if (m) location.replace(m[1] + '/blog/'); })();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Página no encontrada · Áurea Mª Fernández, abogada</title>
 <meta name="description" content="Esta página no existe.">
@@ -46,11 +47,9 @@
   <p class="entrada">Puede que venga de la web anterior. Todo lo de entonces sigue aquí:</p>
   <p><a class="boton" href="/" id="volver-inicio">Ir al inicio</a></p>
   <script>
-  /* las URLs viejas de Siweb que no se pueden servir como carpeta (en Windows
-     «Blog» y «blog» son la misma): se redirigen aquí, sea cual sea la raíz */
+  /* «Ir al inicio» lleva a la raíz de la web, esté donde esté publicada */
   (function () {
-    var p = location.pathname, m = p.match(/^(.*?)\/Blog\/All\/?$/);
-    if (m) { location.replace(m[1] + '/blog/'); return; }
+    var p = location.pathname;
     var i = p.search(/\/(blog|D|sobre-mi|areas-legales|servicios|contacto|cookies)(\/|$)/i);
     document.getElementById('volver-inicio').href = (i > 0 ? p.slice(0, i) : '') + '/';
   })();

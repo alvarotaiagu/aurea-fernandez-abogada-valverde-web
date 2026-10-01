@@ -20,7 +20,7 @@ const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 const escribir = (rel, txt) => { const r = path.join(raiz, rel); fs.mkdirSync(path.dirname(r), { recursive: true }); fs.writeFileSync(r, txt); console.log('escrito ' + rel); };
 
 /* ───────── esqueleto de las páginas interiores ───────── */
-function pagina({ rel, titulo, descripcion, canonical, cuerpo, scriptsExtra = '' }) {
+function pagina({ rel, titulo, descripcion, canonical, cuerpo, scriptsExtra = '', antesDeTodo = '' }) {
   const prof = rel.split('/').length - 1;
   const R = '../'.repeat(prof);
   return `<!DOCTYPE html>
@@ -29,7 +29,7 @@ function pagina({ rel, titulo, descripcion, canonical, cuerpo, scriptsExtra = ''
 <head>
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+${antesDeTodo}<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(titulo)}</title>
 <meta name="description" content="${esc(descripcion)}">
 <meta name="theme-color" content="#151412">
@@ -238,17 +238,18 @@ escribir('privacidad.html', pagina({
 
 escribir('404.html', pagina({
   rel: '404.html', titulo: 'Página no encontrada · Áurea Mª Fernández, abogada', descripcion: 'Esta página no existe.', canonical: '',
+  /* /Blog/All/ de Siweb (en Windows «Blog» y «blog» son la misma carpeta): se
+     redirige antes de pedir CSS o JS, que a esa profundidad darían 404 */
+  antesDeTodo: `<script>(function () { var m = location.pathname.match(/^(.*?)\\/Blog\\/All\\/?$/); if (m) location.replace(m[1] + '/blog/'); })();</script>\n`,
   cuerpo: `<main id="contenido" class="perdido">
   <svg class="perdido__corona" viewBox="700 44 640 720" aria-hidden="true"><use href="#monograma"/></svg>
   <h1 class="titular">Esta página no está</h1>
   <p class="entrada">Puede que venga de la web anterior. Todo lo de entonces sigue aquí:</p>
   <p><a class="boton" href="/" id="volver-inicio">Ir al inicio</a></p>
   <script>
-  /* las URLs viejas de Siweb que no se pueden servir como carpeta (en Windows
-     «Blog» y «blog» son la misma): se redirigen aquí, sea cual sea la raíz */
+  /* «Ir al inicio» lleva a la raíz de la web, esté donde esté publicada */
   (function () {
-    var p = location.pathname, m = p.match(/^(.*?)\\/Blog\\/All\\/?$/);
-    if (m) { location.replace(m[1] + '/blog/'); return; }
+    var p = location.pathname;
     var i = p.search(/\\/(blog|D|sobre-mi|areas-legales|servicios|contacto|cookies)(\\/|$)/i);
     document.getElementById('volver-inicio').href = (i > 0 ? p.slice(0, i) : '') + '/';
   })();
