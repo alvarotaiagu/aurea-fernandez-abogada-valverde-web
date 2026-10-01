@@ -38,7 +38,20 @@ ${canonical ? `<link rel="canonical" href="${DOMINIO}${canonical}">\n` : ''}<lin
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ibarra+Real+Nova:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <link rel="stylesheet" href="${R}css/estilos.css">
-<script>document.documentElement.classList.replace('sin-js', 'con-js');</script>
+<script>
+(function () {
+  var h = document.documentElement;
+  h.classList.replace('sin-js', 'con-js');
+  /* paso entre páginas: si se llega por un enlace interno, la página nace tapada y se destapa */
+  try {
+    if (sessionStorage.getItem('aurea-paso') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      h.classList.add('con-paso');
+      setTimeout(function () { h.classList.remove('con-paso'); }, 2000);
+    }
+    sessionStorage.removeItem('aurea-paso');
+  } catch (e) {}
+})();
+</script>
 </head>
 <body class="interior">
 
@@ -136,6 +149,7 @@ for (const e of entradas) {
   const rel = 'blog/index.html';
   const orden = [...entradas].sort((a, b) => b.fecha.localeCompare(a.fecha));
   const items = orden.map(e => `      <li class="nota"${e.caso ? ' data-modulo="casos" hidden' : ''}>
+        <svg class="nota__hoja" viewBox="0 0 136 75" aria-hidden="true"><use href="#hoja"/></svg>
         <time datetime="${e.fecha}">${fechaLarga(e.fecha)}</time>
         <h2><a href="${e.slug}/">${esc(e.titulo)}</a></h2>
         <p>${esc(resumen(e.lineas))}</p>
@@ -230,6 +244,7 @@ escribir('privacidad.html', pagina({
       <!-- [MANDO DE MAQUETA] esta fila se quita con el mando -->
       <tr><td><code>aurea-densidad</code></td><td>Solo en la maqueta de revisión: qué versión visual estás viendo</td><td>Hasta que borres los datos del navegador</td></tr>
       <!-- fin [MANDO DE MAQUETA] -->
+      <tr><td><code>aurea-paso</code> (sessionStorage)</td><td>Saber que vienes de otra página de esta web, para la transición entre páginas</td><td>Se borra al llegar a la página (y al cerrar la pestaña)</td></tr>
     </tbody>
   </table>
   <p>El mapa de Google Maps no se carga hasta que pulsas «Ver el mapa». Si lo haces, Google puede instalar sus propias cookies, según su política de privacidad. Los botones de WhatsApp y de redes sociales son enlaces normales: no cargan nada de esos servicios hasta que los pulsas.</p>
@@ -261,7 +276,7 @@ escribir('404.html', pagina({
 {
   const datos = JSON.parse(fs.readFileSync(path.join(raiz, 'data/opiniones.json'), 'utf8'));
   const col = n => datos.citas.filter(c => c.columna === n).map(c => `          <li><figure class="cita">
-            <p class="cita__estrellas" aria-label="${c.estrellas} de 5 estrellas">${'★'.repeat(c.estrellas)}${'☆'.repeat(5 - c.estrellas)}</p>
+            <p class="cita__estrellas" role="img" aria-label="${c.estrellas} de 5 estrellas">${[...Array(5)].map((_, k) => `<span class="${k < c.estrellas ? 'estrella' : 'estrella estrella--vacia'}" style="--i:${k}" aria-hidden="true">${k < c.estrellas ? '★' : '☆'}</span>`).join('')}</p>
             <blockquote><p>«${esc(c.texto)}»</p></blockquote>
             <figcaption>${esc(c.nombre)} · Google</figcaption>
           </figure></li>`).join('\n');

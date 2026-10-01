@@ -154,24 +154,35 @@ if __name__ == '__main__':
     (assets / 'hoja.svg').write_text(
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{caja_svg(HOJA)}" width="136" height="75"><path fill="#9C7A3C" d="{d["hoja"]}"/></svg>\n', encoding='utf8')
 
-    def bloque(claves):
+    def bloque(claves, con_hojas=False):
+        # las 24 hojas sueltas como <path id="hoja-izq-0"…>: las usan la cortina y la corona del hero
+        sueltas = ''.join(f'<path id="hoja-{lado}-{i}" d="{p}"/>' for lado, ps in hojas.items() for i, p in enumerate(ps)) if con_hojas else ''
         return ('<!-- simbolos:inicio · generado por scripts/logo.py, no editar a mano -->\n'
                 '<svg class="simbolos" width="0" height="0" aria-hidden="true" focusable="false"><defs>'
                 + ''.join(f'<path id="{k}" fill-rule="evenodd" d="{d[k]}"/>' for k in claves)
+                + sueltas
                 + f'<symbol id="hoja" viewBox="{caja_svg(HOJA)}"><path d="{d["hoja"]}"/></symbol>'
                 + '</defs></svg>\n<!-- simbolos:fin -->')
     hojas_bloque = ('<!-- hojas:inicio · generado por scripts/logo.py · de abajo arriba -->'
                     + ''.join(f'<g class="cortina__hojas cortina__hojas--{lado}">'
-                              + ''.join(f'<path class="cortina__hoja" d="{p}"/>' for p in ps) + '</g>'
+                              + ''.join(f'<use class="cortina__hoja" href="#hoja-{lado}-{i}"/>' for i in range(len(ps))) + '</g>'
                               for lado, ps in hojas.items())
                     + '<!-- hojas:fin -->')
+    # la corona del hero: cada rama en su grupo (se recoge al bajar; el monograma no se toca)
+    # con una copia dorada de cada hoja encima, que se enciende cerca del cursor
+    hero_bloque = ('<!-- hojas-hero:inicio · generado por scripts/logo.py -->'
+                   + ''.join(f'<g class="hero__rama hero__rama--{lado}" id="hero-rama-{lado}"><use href="#laurel-{lado}"/>'
+                             + ''.join(f'<use class="hero__hoja" href="#hoja-{lado}-{i}"/>' for i in range(len(ps))) + '</g>'
+                             for lado, ps in hojas.items())
+                   + '<!-- hojas-hero:fin -->')
     # la portada lleva las ramas (cortina, hero, pie); las interiores, solo monograma y hoja
     for ruta in sorted(RAIZ.rglob('*.html')):
         rel = ruta.relative_to(RAIZ).as_posix()
         if rel.startswith(('scripts/', 'screenshots/', 'node_modules/')):
             continue
         claves = ['laurel-izq', 'laurel-der', 'monograma'] if rel == 'index.html' else ['monograma']
-        if sustituir(rel, 'simbolos', bloque(claves)):
+        if sustituir(rel, 'simbolos', bloque(claves, rel == 'index.html')):
             print('símbolos en ' + rel)
     print(('hojas en index.html' if sustituir('index.html', 'hojas', hojas_bloque) else 'sin marcas de hojas en index.html'))
+    print(('hojas del hero en index.html' if sustituir('index.html', 'hojas-hero', hero_bloque) else 'sin marcas de hojas-hero en index.html'))
     print({k: len(v) for k, v in d.items()}, {k: len(v) for k, v in hojas.items()})

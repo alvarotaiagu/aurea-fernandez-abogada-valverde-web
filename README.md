@@ -7,7 +7,7 @@
 ```
 node scripts/servir.mjs                 → http://127.0.0.1:4210  (hace falta HTTP: las viñetas son mask-image)
 http://127.0.0.1:4210/?revision         → con el mando de las dos versiones
-node scripts/verificar.mjs              → 162 comprobaciones (con --capturas guarda screenshots/)
+node scripts/verificar.mjs              → 175 comprobaciones (con --capturas guarda screenshots/)
 ```
 
 Si cambias datos o textos, ejecuta en este orden: `node scripts/construir.mjs` → `python scripts/logo.py` → `node scripts/versionar.mjs`.
@@ -113,6 +113,20 @@ Cada rama se parte además en sus 12 hojas para la cortina. Se hace una apertura
 La «hoja suelta» es la de arriba de la rama izquierda, recortada con su pecíolo. El favicon es el monograma.
 
 ---
+
+## Segunda ronda de movimiento (1/10/2026, tras verla publicada)
+
+Todo sale de la corona y la hoja. Nada se anima porque sí.
+
+| Dónde | Qué hace |
+|---|---|
+| Hero | **Destello**: al aterrizar la corona, un brillo de oro la recorre de abajo arriba una sola vez. **Corona viva**: las hojas cercanas al cursor se doran (copia dorada de cada hoja, solo opacidad). Al bajar, las dos ramas se recogen 7º sobre la base de su tallo; el monograma y la balanza no se mueven. **Luz de oro** tenue que sigue al cursor, con **grano de papel** fijo. **Profundidad**: la corona y el nombre se desplazan unos píxeles con el ratón, solo cuando la cortina ya se ha ido, para no descuadrar el traspaso. |
+| Hero, franja de abajo | «5,0★ · 183 opiniones en Google» y «Con cita previa · en despacho o por videollamada». En medio, el **indicador de scroll**: una hoja que cae meciéndose por un hilo fino y se apaga al empezar a bajar. En móvil solo queda el indicador. En la sobria, un trazo que baja en vez de la hoja. |
+| Cómo trabajo | Los servicios entran escalonados y su filete dorado se tiende. |
+| Sobre mí | El retrato se abre de abajo arriba dentro de su arco, con paralaje dentro. |
+| Opiniones | Las estrellas de cada cita se doran una a una al entrar. |
+| Notas | La hoja de cada tarjeta se dora al pasar el ratón o con el foco. |
+| Entre páginas | Al ir de la portada a una nota (o volver), un panel tinta con la hoja dorada tapa la página y la nueva se destapa. Al volver a la portada no se repite la cortina larga. Usa  (, anotado en la privacidad). Con movimiento reducido no hay paso. |
 
 ## Mapa de secciones
 

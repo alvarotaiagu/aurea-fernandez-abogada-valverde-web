@@ -424,6 +424,77 @@ try {
     await contexto.close();
   }
 
+  /* ───── 1c. mejoras: corona viva, retrato, servicios, estrellas, hoja de las notas, paso entre páginas ───── */
+  {
+    const { contexto, page, errores } = await nuevaPagina(navegador, { cookiesVistas: true });
+    await contexto.addInitScript(() => { document.addEventListener('DOMContentLoaded', () => { window.__paso = document.documentElement.classList.contains('con-paso'); }); });
+    await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
+    await esperarCortina(page); await page.waitForTimeout(1800);
+    const retAntes = await page.evaluate(() => getComputedStyle(document.getElementById('sobre-retrato')).clipPath);
+    const ind = await page.evaluate(() => ({ anim: getComputedStyle(document.querySelector('.hero__bajar-hilo svg')).animationName, ancho: document.querySelector('.hero__bajar-hilo svg').getBoundingClientRect().width, op: getComputedStyle(document.getElementById('hero-bajar')).opacity, datos: [...document.querySelectorAll('.hero__dato')].map(d => d.textContent.replace(/\s+/g, ' ').trim()), luz: getComputedStyle(document.getElementById('inicio')).backgroundImage.includes('radial-gradient'), grano: getComputedStyle(document.getElementById('inicio'), '::before').backgroundImage.includes('svg') }));
+    comprobar(ind.anim === 'hoja-cae' && ind.ancho >= 20 && ind.op === '1' && /5,0.*183 opiniones en Google/.test(ind.datos[0]) && /cita previa/.test(ind.datos[1]) && ind.luz && ind.grano, 'hero premium: indicador de scroll (la hoja cae por su hilo), franja con 5,0★ · 183 opiniones y cita previa, luz de oro y grano de papel → ' + JSON.stringify(ind));
+    /* corona viva: el cursor cerca de la rama izquierda dora sus hojas */
+    const cc = await page.locator('#hero-corona').boundingBox();
+    await page.mouse.move(cc.x + cc.width * 0.12, cc.y + cc.height * 0.45, { steps: 8 });
+    await page.waitForTimeout(800);
+    const viva = await page.evaluate(() => ({ max: Math.max(...[...document.querySelectorAll('.hero__hoja')].map(h => +getComputedStyle(h).opacity)), n: document.querySelectorAll('.hero__hoja').length, mono: document.querySelector('.hero__mono').getAttribute('transform'), monoCss: getComputedStyle(document.querySelector('.hero__mono')).transform }));
+    comprobar(viva.n === 24 && viva.max > 0.5 && !viva.mono && viva.monoCss === 'none', 'corona viva: con el cursor cerca, las hojas del hero se doran (máx. ' + viva.max.toFixed(2) + ' de 24), el monograma intacto');
+    await page.mouse.move(1435, 500, { steps: 6 }); await page.waitForTimeout(900);
+    const apagada = await page.evaluate(() => Math.max(...[...document.querySelectorAll('.hero__hoja')].map(h => +getComputedStyle(h).opacity)));
+    comprobar(apagada < 0.05, 'corona viva: al salir el cursor, el oro se apaga');
+    await rueda(page, 2, 250);
+    const recoge = await page.evaluate(() => ({ izq: document.getElementById('hero-rama-izq').getAttribute('transform') || '', der: document.getElementById('hero-rama-der').getAttribute('transform') || '', mono: document.querySelector('.hero__mono').getAttribute('transform'), y: scrollY }));
+    const ang = t => { const m = t.match(/matrix\(([-\d.e]+)[ ,]+([-\d.e]+)/); return m ? Math.atan2(+m[2], +m[1]) * 180 / Math.PI : 0; };
+    comprobar(+(await page.evaluate(() => getComputedStyle(document.getElementById('hero-bajar')).opacity)) < 0.5, 'hero: el indicador de scroll se apaga al empezar a bajar');
+    comprobar(ang(recoge.izq) > 0.5 && ang(recoge.der) < -0.5 && !recoge.mono, 'corona viva: al bajar, las ramas se recogen (' + ang(recoge.izq).toFixed(1) + '° / ' + ang(recoge.der).toFixed(1) + '°) y la balanza no se mueve');
+    /* servicios */
+    const antesServ = await page.evaluate(() => document.querySelector('.servicios').classList.contains('es-visible'));
+    await hasta(page, '#como-trabajo', 200); await rueda(page, 2, 300); await page.waitForTimeout(1200);
+    const serv = await page.evaluate(() => ({ vis: document.querySelector('.servicios').classList.contains('es-visible'), filete: getComputedStyle(document.querySelector('.servicio:last-child'), '::before').transform, texto: getComputedStyle(document.querySelector('.servicio:last-child h3')).opacity }));
+    comprobar(!antesServ && serv.vis && /matrix\(1, 0, 0, 1/.test(serv.filete) && serv.texto === '1', 'servicios: entran escalonados al llegar y su filete dorado se tiende');
+    /* retrato */
+    await hasta(page, '#sobre-mi'); await page.waitForTimeout(1900);
+    const ret = await page.evaluate(() => ({ clip: getComputedStyle(document.getElementById('sobre-retrato')).clipPath, img: getComputedStyle(document.querySelector('#sobre-retrato img')).transform }));
+    comprobar(/inset\(100%/.test(retAntes) && /inset\(0/.test(ret.clip) && ret.img !== 'none', 'retrato: se abre de abajo arriba dentro de su arco al llegar, con paralaje dentro (' + ret.img.slice(0, 32) + '…)');
+    if (conCapturas) await page.screenshot({ path: foto('03-sobre-mi.png') });
+    /* estrellas */
+    await hasta(page, '#opiniones'); await page.waitForTimeout(1600);
+    const est = await page.evaluate(() => { const c = document.querySelector('.cita.es-vista'); return { vistas: document.querySelectorAll('.cita.es-vista').length, color: c ? getComputedStyle(c.querySelector('.estrella:last-child')).color : '' }; });
+    comprobar(est.vistas >= 2 && !/0\.2\)/.test(est.color), 'opiniones: las estrellas se doran una a una al entrar cada cita (' + est.vistas + ' citas vistas)');
+    /* hoja de las notas */
+    await hasta(page, '#notas');
+    const nb = await page.locator('.notas__lista .nota').first().boundingBox();
+    await page.mouse.move(nb.x + nb.width / 2, nb.y + nb.height / 2, { steps: 5 }); await page.waitForTimeout(700);
+    comprobar(/156, 122, 60/.test(await page.evaluate(() => getComputedStyle(document.querySelector('.notas__lista .nota__hoja')).fill)), 'notas: su hoja se dora al pasar el ratón');
+    /* paso: portada → nota del blog */
+    await page.click('.notas__lista .nota h3 a');
+    await page.waitForTimeout(320);
+    const cubre = await page.evaluate(() => { const p = document.querySelector('.paso'); return p ? { clase: p.classList.contains('es-cubre'), ty: getComputedStyle(p).transform } : null; }).catch(() => null);
+    await page.waitForURL(/\/blog\/violencia-de-genero-info\/$/, { timeout: 5000 }).catch(() => {});
+    const llegada = await page.evaluate(() => window.__paso);
+    await page.waitForTimeout(1400);
+    const destapada = await page.evaluate(() => !document.documentElement.classList.contains('con-paso'));
+    comprobar(cubre && cubre.clase && /blog\/violencia-de-genero-info\/$/.test(page.url()) && llegada === true && destapada,
+      'paso entre páginas: al ir a una nota, un panel tinta con la hoja tapa la portada (a medias: ' + (cubre ? cubre.ty : '—') + '), la nota nace tapada y se destapa');
+    if (conCapturas) await page.screenshot({ path: foto('16-nota-blog.png') });
+    /* paso: nota → portada#areas, sin repetir la cortina larga */
+    await page.click('.cabecera__nav a[href$="index.html#areas"]').catch(async () => { await page.goto(base + '/index.html#areas'); });
+    await page.waitForURL(/index\.html#areas$/, { timeout: 5000 }).catch(() => {});
+    await page.waitForTimeout(500);
+    const vuelta = await page.evaluate(() => ({ paso: window.__paso, cortina: getComputedStyle(document.getElementById('cortina')).display, y: scrollY }));
+    await page.waitForTimeout(1200);
+    comprobar(vuelta.paso === true && vuelta.cortina === 'none' && vuelta.y > 300, 'paso de vuelta a la portada: sin la cortina larga y en su ancla (#areas, y = ' + Math.round(vuelta.y) + ')');
+    comprobar(errores.length === 0, 'mejoras: consola sin errores' + (errores.length ? ' → ' + errores.join(' | ') : ''));
+    await contexto.close();
+    /* con movimiento reducido, no hay paso: el enlace navega sin más */
+    const rm = await nuevaPagina(navegador, { cookiesVistas: true, reducedMotion: 'reduce' });
+    await rm.page.goto(base + '/index.html', { waitUntil: 'networkidle' });
+    await rm.page.click('.notas__lista .nota h3 a');
+    await rm.page.waitForURL(/\/blog\//, { timeout: 4000 }).catch(() => {});
+    comprobar(/\/blog\//.test(rm.page.url()) && await rm.page.evaluate(() => !document.documentElement.classList.contains('con-paso')), 'movimiento reducido: los enlaces navegan sin paso ni capa');
+    await rm.contexto.close();
+  }
+
   /* ───── 2. las dos densidades (?revision) ───── */
   {
     const { contexto, page, errores } = await nuevaPagina(navegador);
@@ -497,14 +568,14 @@ try {
     await esperarCortina(page); await page.waitForTimeout(2600);
     const r = await page.evaluate(() => {
       const caja = s => { const b = document.querySelector(s).getBoundingClientRect(); return { top: Math.round(b.top), bottom: Math.round(b.bottom), left: Math.round(b.left), right: Math.round(b.right) }; };
-      const piezas = ['#hero-corona', '#hero-nombre', '#hero-abogada', '.hero__linea', '.hero__acciones'].map(caja);
+      const piezas = ['#hero-corona', '#hero-nombre', '#hero-abogada', '.hero__linea', '.hero__acciones', '#hero-bajar'].map(caja);
       const pisan = piezas.slice(1).some((p, i) => p.top < piezas[i].bottom - 1);
       const partidas = [...document.querySelectorAll('#hero-nombre .palabra')].filter(p => p.getClientRects().length > 1 || p.offsetHeight > parseFloat(getComputedStyle(p).lineHeight) * 1.5).length;
       const lineas = Math.round(document.getElementById('hero-nombre').offsetHeight / parseFloat(getComputedStyle(document.getElementById('hero-nombre')).lineHeight));
       return { cab: document.getElementById('cabecera').offsetHeight, piezas, pisan, partidas, lineas, ancho: document.documentElement.scrollWidth - innerWidth };
     });
     const ok = !r.pisan && r.partidas === 0 && r.piezas[0].top >= r.cab && r.piezas.every(p => p.left >= 0 && p.right <= w + 1) && r.ancho <= 1;
-    comprobar(ok, 'checklist 6 · hero ' + w + '×' + h + ': corona, nombre (' + r.lineas + ' línea/s, ninguna palabra partida), ABOGADA, línea y CTAs no se pisan → ' + (ok ? 'bien' : JSON.stringify(r)));
+    comprobar(ok, 'checklist 6 · hero ' + w + '×' + h + ': corona, nombre (' + r.lineas + ' línea/s, ninguna palabra partida), ABOGADA, línea, CTAs e indicador de scroll no se pisan → ' + (ok ? 'bien' : JSON.stringify(r)));
     if (conCapturas) {
       await page.screenshot({ path: foto('hero-' + w + 'x' + h + '.png') });
       await page.addStyleTag({ content: '.con-movimiento .cursos li{opacity:1!important;transform:none!important}' });

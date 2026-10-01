@@ -36,6 +36,10 @@
   background: var(--tinta-suave); border: 1px solid var(--linea-oscura); border-radius: 1.1rem;
 }
 .cita__estrellas { color: var(--oro-claro); font-size: .9rem; letter-spacing: .14em; }
+.estrella--vacia { color: rgba(246, 242, 234, .4); }
+/* con movimiento, las estrellas se doran una a una cuando la cita entra a la vista */
+.con-movimiento .cita .estrella:not(.estrella--vacia) { color: rgba(246, 242, 234, .2); transition: color .45s ease calc(var(--i, 0) * 110ms + .1s); }
+.con-movimiento .cita.es-vista .estrella:not(.estrella--vacia) { color: var(--oro-claro); }
 .cita blockquote { margin-top: .5rem; font: 400 1.12rem/1.45 var(--tipo-rotulo); }
 .cita figcaption { margin-top: .7rem; font-size: .88rem; letter-spacing: .06em; color: var(--apagado-oscuro); }
 

@@ -192,6 +192,11 @@
     }
     Aurea.retirarCortina = retirar;
 
+    if (html.classList.contains('con-paso')) {
+      /* se llega por el paso entre páginas: la cortina larga no se repite */
+      setTimeout(retirar, 0);
+      return;
+    }
     if (!movimiento) {
       /* sin GSAP o con movimiento reducido se retira igual: nunca tapa la página */
       setTimeout(retirar, reduce ? 0 : 60);
@@ -279,13 +284,118 @@
   (function hero() {
     var abogada = document.getElementById('hero-abogada');
     if (!abogada || !movimiento) return;
-    var resto = todos('.hero__linea, .hero__acciones');
+    var resto = todos('.hero__linea, .hero__acciones, .hero__pie');
     Aurea.alAbrirse(function () {
       /* «ABOGADA» cierra su espaciado */
       gsap.to(abogada, { letterSpacing: window.innerWidth <= 640 ? '.5em' : '.62em', opacity: 1, duration: 1.6, ease: 'expo.out', delay: 0.55 });
       gsap.to(resto, { opacity: 1, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.1, delay: 0.85 });
     });
   })();
+
+  /* ───────────────── hero premium: destello de oro, luz que sigue al cursor, profundidad e indicador ───────────────── */
+  (function heroPremium() {
+    var hero = document.getElementById('inicio');
+    var corona = document.getElementById('hero-corona');
+    var bajar = document.getElementById('hero-bajar');
+    if (!hero) return;
+    /* el indicador se apaga al empezar a bajar (contenido: vale también sin movimiento) */
+    if (bajar) {
+      var apagar = function () { bajar.style.opacity = Math.max(0, 1 - window.pageYOffset / (window.innerHeight * 0.22)).toFixed(3); bajar.style.visibility = window.pageYOffset > window.innerHeight * 0.3 ? 'hidden' : ''; };
+      window.addEventListener('scroll', apagar, { passive: true });
+      apagar();
+    }
+    if (!movimiento || !corona) return;
+    /* 1 · al aterrizar la corona, un destello de oro la recorre de abajo arriba, una sola vez */
+    var porLado = [todos('.hero__rama--izq .hero__hoja', corona), todos('.hero__rama--der .hero__hoja', corona)];
+    var orden = [];
+    for (var i = 0; i < Math.max(porLado[0].length, porLado[1].length); i++) {
+      if (porLado[0][i]) orden.push(porLado[0][i]);
+      if (porLado[1][i]) orden.push(porLado[1][i]);
+    }
+    Aurea.alAbrirse(function () {
+      if (densidad() !== 'laurel' || !orden.length) return;
+      gsap.to(orden, { keyframes: [{ opacity: 0.95, duration: 0.32, ease: 'power1.out' }, { opacity: 0, duration: 0.8, ease: 'power2.in' }], stagger: 0.045, delay: 1.25 });
+    });
+    if (esTactil) return;
+    /* 2 · la luz de oro sigue al cursor, despacio · 3 · la corona y el nombre ganan profundidad */
+    var nombre = document.getElementById('hero-nombre');
+    var cx = gsap.quickTo(corona, 'x', { duration: 1.1, ease: 'power3.out' });
+    var cy = gsap.quickTo(corona, 'y', { duration: 1.1, ease: 'power3.out' });
+    var nx = nombre ? gsap.quickTo(nombre, 'x', { duration: 1.3, ease: 'power3.out' }) : null;
+    var luz = { x: 50, y: 32 }, meta = { x: 50, y: 32 }, viva = false;
+    /* hasta que se retira la cortina, nada se mueve: su corona tiene que caer EXACTA sobre esta */
+    var lista = !document.getElementById('cortina') || html.classList.contains('cortina-fuera');
+    document.addEventListener('cortina-retirada', function () { lista = true; });
+    function pintarLuz() {
+      luz.x += (meta.x - luz.x) * 0.06; luz.y += (meta.y - luz.y) * 0.06;
+      hero.style.setProperty('--lx', luz.x.toFixed(2) + '%');
+      hero.style.setProperty('--ly', luz.y.toFixed(2) + '%');
+      if (Math.abs(meta.x - luz.x) + Math.abs(meta.y - luz.y) > 0.05) requestAnimationFrame(pintarLuz); else viva = false;
+    }
+    hero.addEventListener('pointermove', function (e) {
+      if ((e.pointerType && e.pointerType !== 'mouse') || !lista) return;
+      var r = hero.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+      meta.x = 30 + px * 40; meta.y = 18 + py * 34;
+      if (!viva) { viva = true; requestAnimationFrame(pintarLuz); }
+      cx((px - 0.5) * 18); cy((py - 0.5) * 12);
+      if (nx) nx((px - 0.5) * -8);
+    });
+    hero.addEventListener('pointerleave', function () {
+      meta.x = 50; meta.y = 32; if (!viva) { viva = true; requestAnimationFrame(pintarLuz); }
+      cx(0); cy(0); if (nx) nx(0);
+    });
+  })();
+
+  /* ───────────────── corona viva: las hojas se doran cerca del cursor y las ramas se recogen al bajar ───────────────── */
+  (function coronaViva() {
+    var corona = document.getElementById('hero-corona');
+    var hero = document.getElementById('inicio');
+    if (!corona || !hero || !movimiento) return;
+    var izq = document.getElementById('hero-rama-izq'), der = document.getElementById('hero-rama-der');
+    /* cada rama gira sobre la base de su tallo (svgOrigin, en coordenadas del PNG);
+       el monograma y su balanza quedan fuera de estos grupos: no se mueven nunca */
+    var recoger = { trigger: hero, start: 'top top', end: 'bottom top', scrub: true };
+    if (izq) gsap.to(izq, { rotation: 7, svgOrigin: '884 852', ease: 'none', scrollTrigger: recoger });
+    if (der) gsap.to(der, { rotation: -7, svgOrigin: '1122 852', ease: 'none', scrollTrigger: Object.assign({}, recoger) });
+    if (esTactil) return;
+    var hojas = todos('.hero__hoja', corona);
+    var poner = hojas.map(function (h) { return gsap.quickTo(h, 'opacity', { duration: 0.55, ease: 'power2.out' }); });
+    var pendiente = null;
+    hero.addEventListener('pointermove', function (e) {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      var x = e.clientX, y = e.clientY;
+      if (pendiente) return;
+      pendiente = requestAnimationFrame(function () {
+        pendiente = null;
+        var radio = Math.max(90, corona.offsetWidth * 0.34);
+        hojas.forEach(function (h, i) {
+          var r = h.getBoundingClientRect();
+          var d = Math.hypot(x - (r.left + r.width / 2), y - (r.top + r.height / 2));
+          poner[i](Math.max(0, 1 - d / radio));
+        });
+      });
+    });
+    hero.addEventListener('pointerleave', function () { poner.forEach(function (p) { p(0); }); });
+  })();
+
+  /* ───────────────── el retrato se abre dentro de su arco, con paralaje ───────────────── */
+  (function retrato() {
+    var fig = document.getElementById('sobre-retrato');
+    if (!fig) return;
+    /* se observa la sección: el retrato nace recortado al 100 % */
+    cuandoVisible(todos('#sobre-mi'), 0.12, function () { fig.classList.add('es-visible'); });
+    if (!movimiento) return;
+    var img = fig.querySelector('img');
+    gsap.fromTo(img, { scale: 1.14, yPercent: -5 }, {
+      scale: 1.14, yPercent: 5, ease: 'none', immediateRender: true,
+      scrollTrigger: { trigger: fig, start: 'top bottom', end: 'bottom top', scrub: true }
+    });
+  })();
+
+  /* ───────────────── servicios: entran escalonados, con su filete ───────────────── */
+  todos('.servicio').forEach(function (s, i) { s.style.setProperty('--i', i); });
+  cuandoVisible(todos('.servicios'), 0.25, function (n) { n.classList.add('es-visible'); });
 
   /* ───────────────── áreas: pila con el mismo alto (o acordeón en la sobria) ───────────────── */
   (function areas() {
@@ -594,6 +704,45 @@
       setTimeout(refrescar, 30);
       document.getElementById('enviar-whatsapp').focus({ preventScroll: true });
     });
+  })();
+
+  /* ───────────────── paso entre páginas: la hoja cruza en vez de un corte seco ───────────────── */
+  /* No depende de GSAP: dos clases y transiciones CSS. Con movimiento reducido no hay paso. */
+  (function paso() {
+    if (reduce) return;
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest('a[href]');
+      if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+      var url;
+      try { url = new URL(a.href, location.href); } catch (err) { return; }
+      if (url.origin !== location.origin || !/^https?:$/.test(url.protocol)) return;
+      if (url.pathname === location.pathname) return;               /* anclas del mismo documento */
+      if (!/(\/|\.html)$/.test(url.pathname)) return;                /* solo páginas de la web */
+      e.preventDefault();
+      try { sessionStorage.setItem('aurea-paso', '1'); } catch (err) {}
+      var capa = document.createElement('div');
+      capa.className = 'paso';
+      capa.setAttribute('aria-hidden', 'true');
+      capa.innerHTML = '<svg viewBox="0 0 136 75"><use href="#hoja"/></svg>';
+      document.body.appendChild(capa);
+      void capa.offsetWidth;
+      capa.classList.add('es-cubre');
+      setTimeout(function () { location.href = url.href; }, 660);
+    });
+    /* volver con «atrás» desde la caché: la capa no se queda puesta */
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) todos('.paso').forEach(function (n) { n.remove(); });
+    });
+    /* llegada: el panel puesto en el <head> sigue subiendo */
+    if (html.classList.contains('con-paso')) {
+      var sale = function () {
+        html.classList.add('es-paso-sale');
+        setTimeout(function () { html.classList.remove('con-paso', 'es-paso-sale'); }, 820);
+      };
+      var espera = new Promise(function (r) { setTimeout(r, 320); });
+      Promise.race([document.fonts && document.fonts.ready ? document.fonts.ready : espera, espera]).then(function () { requestAnimationFrame(sale); });
+    }
   })();
 
   /* ───────────────── aviso de cookies ───────────────── */

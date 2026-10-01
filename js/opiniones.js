@@ -21,6 +21,14 @@
     });
   }
 
+  /* las estrellas de cada cita se doran una a una al entrar (también las copias del bucle) */
+  if (A.movimiento && 'IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function (entradas) {
+      entradas.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('es-vista'); obs.unobserve(en.target); } });
+    }, { threshold: 0.6 });
+    Array.prototype.forEach.call(seccion.querySelectorAll('.cita'), function (c) { obs.observe(c); });
+  }
+
   /* el recuento cuenta al entrar (con movimiento reducido ya pone 183) */
   var n = document.getElementById('opiniones-n');
   if (n && A.contar) {
