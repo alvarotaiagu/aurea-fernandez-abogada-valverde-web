@@ -126,7 +126,7 @@ Todo sale de la corona y la hoja. Nada se anima porque sí.
 | Sobre mí | El retrato se abre de abajo arriba dentro de su arco, con paralaje dentro. |
 | Opiniones | Las estrellas de cada cita se doran una a una al entrar. |
 | Notas | La hoja de cada tarjeta se dora al pasar el ratón o con el foco. |
-| Entre páginas | Al ir de la portada a una nota (o volver), un panel tinta con la hoja dorada tapa la página y la nueva se destapa. Al volver a la portada no se repite la cortina larga. Usa  (, anotado en la privacidad). Con movimiento reducido no hay paso. |
+| Entre páginas | Al ir de la portada a una nota (o volver), un panel tinta con la hoja dorada tapa la página y la nueva se destapa. Al volver a la portada no se repite la cortina larga. Usa `sessionStorage` (`aurea-paso`, anotado en la privacidad). Con movimiento reducido no hay paso. |
 
 ## Mapa de secciones
 
