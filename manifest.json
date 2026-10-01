@@ -1,0 +1,10 @@
+{
+  "name": "Áurea Mª Fernández · Abogada",
+  "short_name": "Áurea Fernández",
+  "lang": "es",
+  "start_url": "./",
+  "display": "browser",
+  "background_color": "#F6F2EA",
+  "theme_color": "#151412",
+  "icons": [{ "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

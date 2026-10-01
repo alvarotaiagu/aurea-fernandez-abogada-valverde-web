@@ -1,0 +1,17 @@
+/* ═══ [MÓDULO CASOS] (del boceto E) · apagado por defecto ═══
+   La sección nace con [hidden] y vacía; js/casos.js la rellena y la enseña
+   solo si data/casos.json trae "permiso": true. */
+.casos[hidden] { display: none; }
+.casos { padding: clamp(3.5rem, 7vw, 5.5rem) var(--margen); background: var(--marfil); }
+.casos__cabeza, .casos__lista, .casos__aviso { max-width: var(--ancho); margin-left: auto; margin-right: auto; }
+.casos__cabeza { margin-bottom: 2rem; }
+.casos__lista { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; }
+.caso { display: grid; align-content: start; gap: .8rem; padding: 1.8rem; border-radius: 1.4rem; background: var(--tostado); }
+.caso__cifra { font: 600 clamp(2.8rem, 6vw, 4.6rem)/1 var(--tipo-rotulo); font-variant-numeric: tabular-nums lining-nums; color: var(--tinta); }
+.caso__entidad { font-size: .86rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--oro-texto); }
+.caso__que { font-size: 1.05rem; }
+.caso__fuente { font-size: .95rem; color: var(--apagado); }
+.caso__fijo { padding-top: .8rem; border-top: 1px solid var(--linea); font-size: .98rem; font-weight: 600; }
+.casos__aviso { margin-top: 1.4rem; font-size: .95rem; color: var(--apagado); }
+@media (max-width: 760px) { .casos__lista { grid-template-columns: 1fr; } }
+/* ═══ fin [MÓDULO CASOS] ═══ */

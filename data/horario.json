@@ -1,0 +1,24 @@
+{
+  "_nota": "[CONFIRMAR] Su web y su ficha de Google NO dan el mismo horario, y no se sabe si alguno es solo el de Valverde. Mientras no lo confirme, la web dice solo «Con cita previa · de lunes a viernes, mañana y tarde» y no hay ningún «abierto ahora». Nada lee este archivo todavía: es la referencia para cuando lo confirme.",
+  "en_la_web": "Con cita previa · de lunes a viernes, mañana y tarde",
+  "fuentes": {
+    "su_web": {
+      "estado": "[CONFIRMAR]",
+      "lunes_a_viernes": ["10:00–14:00", "17:00–20:30"]
+    },
+    "google": {
+      "estado": "[CONFIRMAR]",
+      "lunes": ["10:00–14:00", "17:00–21:00"],
+      "martes": ["10:00–14:00", "17:00–21:00"],
+      "miercoles": ["10:00–14:00", "17:00–21:00"],
+      "jueves": ["09:00–14:00", "17:00–21:00"],
+      "viernes": ["09:00–14:00"],
+      "sabado": [],
+      "domingo": []
+    }
+  },
+  "despachos": {
+    "valverde": "[CONFIRMAR] ¿qué días?",
+    "badajoz": "[CONFIRMAR] ¿qué días?"
+  }
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "vieja": "/sobre-mi/",
+    "destino": "../index.html#sobre-mi",
+    "canonical": "https://aureafernandezabogada.es/#sobre-mi"
+  },
+  {
+    "vieja": "/areas-legales/",
+    "destino": "../index.html#areas",
+    "canonical": "https://aureafernandezabogada.es/#areas"
+  },
+  {
+    "vieja": "/servicios/",
+    "destino": "../index.html#como-trabajo",
+    "canonical": "https://aureafernandezabogada.es/#como-trabajo"
+  },
+  {
+    "vieja": "/contacto/",
+    "destino": "../index.html#escribeme",
+    "canonical": "https://aureafernandezabogada.es/#escribeme"
+  },
+  {
+    "vieja": "/cookies/",
+    "destino": "../privacidad.html#cookies",
+    "canonical": "https://aureafernandezabogada.es/privacidad.html#cookies"
+  },
+  {
+    "vieja": "/D/post/violencia-de-genero-info/",
+    "destino": "../../../blog/violencia-de-genero-info/",
+    "canonical": "https://aureafernandezabogada.es/blog/violencia-de-genero-info/"
+  },
+  {
+    "vieja": "/D/post/delito-de-lesiones-info/",
+    "destino": "../../../blog/delito-de-lesiones-info/",
+    "canonical": "https://aureafernandezabogada.es/blog/delito-de-lesiones-info/"
+  },
+  {
+    "vieja": "/D/post/actualizacion-pension-de-alimentos-ipc/",
+    "destino": "../../../blog/actualizacion-pension-de-alimentos-ipc/",
+    "canonical": "https://aureafernandezabogada.es/blog/actualizacion-pension-de-alimentos-ipc/"
+  },
+  {
+    "vieja": "/D/post/llegamos-a-un-acuerdo-con-ibercaja-banco/",
+    "destino": "../../../blog/llegamos-a-un-acuerdo-con-ibercaja-banco/",
+    "canonical": "https://aureafernandezabogada.es/blog/llegamos-a-un-acuerdo-con-ibercaja-banco/"
+  },
+  {
+    "vieja": "/D/post/mis-clientes-recuperan-16-600-euros-por-la-clausula-suelo/",
+    "destino": "../../../blog/mis-clientes-recuperan-16-600-euros-por-la-clausula-suelo/",
+    "canonical": "https://aureafernandezabogada.es/blog/mis-clientes-recuperan-16-600-euros-por-la-clausula-suelo/"
+  },
+  {
+    "vieja": "/D/post/como-manejar-un-divorcio-de-manera-consciente-y-eficaz-consejos-practicos/",
+    "destino": "../../../blog/como-manejar-un-divorcio-de-manera-consciente-y-eficaz-consejos-practicos/",
+    "canonical": "https://aureafernandezabogada.es/blog/como-manejar-un-divorcio-de-manera-consciente-y-eficaz-consejos-practicos/"
+  }
+]

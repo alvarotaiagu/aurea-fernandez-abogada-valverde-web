@@ -1,0 +1,21 @@
+{
+  "_fuente": "Ficha de Google de Áurea María Fernández García-Moreno (cid 18416980175827621575), descargada el 2026-10-01 en ../aurea-fernandez-abogada-valverde-bocetos/ref/google-resenas.json. «indice» es la posición en ese archivo. Los textos son literales (con sus erratas); «…» marca un corte. La firma es nombre de pila + inicial del primer apellido: nunca el campo «autor» tal cual (una autora firma con su correo). PERMISO PARA CITARLAS: [CONFIRMAR] con ella.",
+  "valoracion": "5,0",
+  "total": 183,
+  "repiten": ["cercana", "clara", "rápida"],
+  "ficha": "https://maps.google.com/?cid=18416980175827621575",
+  "citas": [
+    { "indice": 0,  "columna": 1, "estrellas": 5, "nombre": "Fátima G.",      "tema": "trato",                     "texto": "Te explica todo con claridad y hace que te sientas tranquila en todo momento." },
+    { "indice": 12, "columna": 1, "estrellas": 5, "nombre": "Juan Manuel P.", "tema": "hipoteca",                  "texto": "Desde el primer día, el trato con Áurea es magnífico, cercano y te expone las cosas super claras y muy fácil de entender… en mi caso con la reclamación por gastos de hipoteca." },
+    { "indice": 22, "columna": 1, "estrellas": 5, "nombre": "Moty S.",        "tema": "empresa, contacto a distancia (Barcelona)", "texto": "Somos un SAT de Barcelona. Contactamos vía RR.SS. Nos ayudó en un proceso sobre unos contratos de mantenimiento y cesión de uso en los que necesitábamos asistencia legal. Muy profesional y cercana." },
+    { "indice": 63, "columna": 1, "estrellas": 4, "nombre": "Isabel M.",      "tema": "hipoteca (una de las dos de cuatro estrellas)", "texto": "Profesional competente en el área de hipotecas. Su atención al detalle y claridad en las explicaciones fueron clave para un proceso sin contratiempos." },
+    { "indice": 21, "columna": 1, "estrellas": 5, "nombre": "Jane N.",        "tema": "empatía",                   "texto": "Muestra una buena empatía con sus clientes y siempre hace que te sientas lo más cómoda posible hablando de tus problemas." },
+    { "indice": 87, "columna": 1, "estrellas": 5, "nombre": "Eva G.",         "tema": "tranquilidad",              "texto": "Te ayuda y orienta en todo tan bien que es increible la tranquilidad que te transmite." },
+    { "indice": 28, "columna": 2, "estrellas": 5, "nombre": "Juanpe C.",      "tema": "trato en el despacho",      "texto": "Desde el minuto 1 que entras en su despacho te hace sentir bien y agradable, resolviendo todas tus dudas y dejando claro todo, tanto lo bueno como lo malo." },
+    { "indice": 26, "columna": 2, "estrellas": 5, "nombre": "Patricia G.",    "tema": "fuera de Extremadura (Madrid), a distancia", "texto": "…di con ella de casualidad yo vivo en Madrid y ella Extremadura y más contenta no puedo estar… me gusta como trabaja atendiendome en horas fuera de trabajo…" },
+    { "indice": 59, "columna": 2, "estrellas": 5, "nombre": "Francisco L.",   "tema": "civil: contrato de alquiler", "texto": "Hizo un excelente trabajo redactando mi contrato de alquiler. Fue muy clara, profesional y eficiente." },
+    { "indice": 2,  "columna": 2, "estrellas": 5, "nombre": "Moisés A.",      "tema": "claridad: pros y contras",  "texto": "Amable y muy profesional, desde un principio nos explicó pros y contras…" },
+    { "indice": 38, "columna": 2, "estrellas": 5, "nombre": "Joaquín C.",     "tema": "vocación",                  "texto": "El trabajo diligente y la atención de Áurea han sido impecables desde el primer día hasta el último. Encontrar profesionales comprometidos con su vocación, especialmente en aspectos tan espinosos como los asuntos legales, siempre es de agradecer." },
+    { "indice": 47, "columna": 2, "estrellas": 5, "nombre": "Jesús S.",       "tema": "hipoteca: antes de firmar", "texto": "Super atenta y siempre saca un hueco para cualquier consulta. Muy contentos de contar con su ayuda a la hora de firmar la hipoteca." }
+  ]
+}

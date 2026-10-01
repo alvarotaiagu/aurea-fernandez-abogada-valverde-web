@@ -1,0 +1,25 @@
+{
+  "_nota": "Módulo «Casos». Con \"permiso\": false la sección no se pinta, no deja hueco y no sale en el menú (ni las dos entradas en el índice del blog). Cambiar a true SOLO cuando ella lo autorice por escrito: el Código Deontológico de la Abogacía no permite publicidad que prometa resultados. Redacción y fechas, las suyas.",
+  "permiso": false,
+  "aviso": "Cada caso es distinto; esto no anticipa el resultado del tuyo.",
+  "casos": [
+    {
+      "cifra": 8700,
+      "decimales": 0,
+      "entidad": "Ibercaja",
+      "que": "Cláusula suelo de una hipoteca. Acuerdo sin juicio, tras una negociación extensa con el banco.",
+      "fecha": "2024-10-09",
+      "fuente": "Publicado en su blog el 9 de octubre de 2024",
+      "entrada": "blog/llegamos-a-un-acuerdo-con-ibercaja-banco/"
+    },
+    {
+      "cifra": 16610.23,
+      "decimales": 2,
+      "entidad": "Caja Rural de Extremadura",
+      "que": "Cláusula suelo. Acuerdo extrajudicial, según la imagen que publicó en su Instagram.",
+      "fecha": "2024-10-09",
+      "fuente": "Publicado en su blog («16.600 euros») e Instagram («16.610,23 €») el 9 de octubre de 2024",
+      "entrada": "blog/mis-clientes-recuperan-16-600-euros-por-la-clausula-suelo/"
+    }
+  ]
+}

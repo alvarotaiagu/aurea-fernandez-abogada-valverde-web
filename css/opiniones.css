@@ -1,0 +1,75 @@
+/* ═══ [MÓDULO OPINIONES] (del boceto E) · se quita con su sección, su JS y su enlace ═══
+   Banda tinta: «5,0» y el recuento a la izquierda, dos columnas de citas en
+   bucle vertical, en sentidos opuestos, a la derecha. Se pausan con hover y
+   con foco. En móvil, una columna de alto fijo. Con movimiento reducido (o sin
+   JS) quedan quietas en lista. */
+.opiniones {
+  display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: clamp(2rem, 5vw, 5rem); align-items: center;
+  padding: clamp(3.5rem, 7vw, 5.5rem) var(--margen);
+  background: var(--tinta); color: var(--marfil);
+}
+.opiniones__nota { display: grid; justify-items: start; gap: 1.2rem; }
+.opiniones__titulo { display: grid; gap: .4rem; font-weight: 400; }
+.opiniones__cifra { font: 600 clamp(5rem, 11vw, 9rem)/.9 var(--tipo-rotulo); color: var(--marfil); }
+.opiniones__total { font-size: .95rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--oro-claro); }
+.opiniones__n { font-variant-numeric: tabular-nums; }
+.opiniones__repiten { font: italic 400 1.3rem/1.35 var(--tipo-rotulo); color: var(--apagado-oscuro); }
+
+.opiniones__columnas {
+  position: relative;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem;
+  height: clamp(30rem, 72vh, 40rem);
+  overflow: hidden;
+}
+.opiniones__columnas:focus-visible { outline-color: var(--oro-claro); }
+/* degradados de entrada y salida (del boceto) */
+.opiniones__columnas::before, .opiniones__columnas::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 5rem; z-index: 2; pointer-events: none;
+}
+.opiniones__columnas::before { top: 0; background: linear-gradient(var(--tinta), rgba(21, 20, 18, 0)); }
+.opiniones__columnas::after { bottom: 0; background: linear-gradient(rgba(21, 20, 18, 0), var(--tinta)); }
+.opiniones__col { min-height: 0; }
+.opiniones__pista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; }
+.cita {
+  padding: 1.3rem 1.3rem 1.1rem;
+  background: var(--tinta-suave); border: 1px solid var(--linea-oscura); border-radius: 1.1rem;
+}
+.cita__estrellas { color: var(--oro-claro); font-size: .9rem; letter-spacing: .14em; }
+.cita blockquote { margin-top: .5rem; font: 400 1.12rem/1.45 var(--tipo-rotulo); }
+.cita figcaption { margin-top: .7rem; font-size: .88rem; letter-spacing: .06em; color: var(--apagado-oscuro); }
+
+/* bucle: solo con movimiento y con la pista ya duplicada por el JS */
+@keyframes opiniones-sube { to { transform: translateY(-50%); } }
+.con-movimiento .opiniones__pista.es-doble { animation: opiniones-sube 46s linear infinite; }
+.con-movimiento .opiniones__col--2 .opiniones__pista.es-doble { animation-duration: 54s; animation-direction: reverse; }
+.opiniones__columnas:hover .opiniones__pista,
+.opiniones__columnas:focus-within .opiniones__pista { animation-play-state: paused; }
+
+/* sin bucle (movimiento reducido o sin JS): lista quieta que se puede recorrer */
+html:not(.con-movimiento) .opiniones__columnas { height: auto; overflow: visible; }
+html:not(.con-movimiento) .opiniones__columnas::before,
+html:not(.con-movimiento) .opiniones__columnas::after { display: none; }
+
+@media (max-width: 960px) {
+  .opiniones { grid-template-columns: 1fr; }
+  .opiniones__columnas { grid-template-columns: 1fr; height: 30rem; }
+  .opiniones__col--2 { display: none; }
+  /* en una sola columna caben las doce: la segunda se suma a la primera */
+  html:not(.con-movimiento) .opiniones__col--2 { display: block; }
+}
+
+/* [MANDO DE MAQUETA] sobria: tres citas fijas, sin bucle */
+.densidad-sobria .opiniones__columnas { height: auto; overflow: visible; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.densidad-sobria .opiniones__columnas::before, .densidad-sobria .opiniones__columnas::after { display: none; }
+.densidad-sobria .opiniones__col { display: contents; }
+.densidad-sobria .opiniones__col--2 { display: none; }
+.densidad-sobria .opiniones__pista { display: contents; animation: none !important; }
+.densidad-sobria .opiniones__pista > li:nth-child(n+4) { display: none; }
+@media (max-width: 960px) { .densidad-sobria .opiniones__columnas { grid-template-columns: 1fr; } }
+/* fin [MANDO DE MAQUETA] */
+
+@media (prefers-reduced-motion: reduce) {
+  .opiniones__pista { animation: none !important; }
+}
+/* ═══ fin [MÓDULO OPINIONES] ═══ */

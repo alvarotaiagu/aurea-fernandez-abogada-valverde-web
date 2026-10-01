@@ -1,0 +1,46 @@
+/* ═══ [MÓDULO DESPACHOS] (del boceto C, SIN el azulejo) ═══
+   Selector «Valverde de Leganés | Badajoz» con pestañas ARIA. Los dos paneles
+   comparten celda de rejilla: el alto es el del mayor y no salta al cambiar;
+   el texto cruza con un fundido corto. Mapa solo tras clic en .map-consent. */
+.despachos {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: "cabeza mapa" "selector mapa" "cuerpo mapa";
+  grid-template-rows: auto auto 1fr;
+  column-gap: clamp(2rem, 5vw, 5rem);
+  max-width: calc(var(--ancho) + 2 * var(--margen)); margin: 0 auto;
+  padding: clamp(4rem, 8vw, 6.5rem) var(--margen) 0;
+}
+.despachos__cabeza { grid-area: cabeza; margin-bottom: 1.6rem; }
+.despachos__selector {
+  grid-area: selector; justify-self: start;
+  display: inline-flex; padding: .3rem; gap: .3rem;
+  border: 1.5px solid var(--tinta); border-radius: 999px;
+}
+.despachos__pestana {
+  padding: .7rem 1.2rem; border: 0; border-radius: 999px;
+  background: transparent; cursor: pointer; font-weight: 600; font-size: 1rem;
+  transition: background-color .35s var(--suave), color .35s var(--suave);
+}
+.despachos__pestana[aria-selected="true"] { background: var(--tinta); color: var(--marfil); }
+.despachos__cuerpo { display: contents; }
+.despachos__paneles { grid-area: cuerpo; display: grid; margin-top: 1.8rem; }
+.despachos__panel { grid-area: 1 / 1; display: grid; align-content: start; gap: .7rem; }
+/* los dos están en la rejilla (mismo alto); el oculto no se ve ni se lee */
+.despachos__panel[hidden] { display: grid; visibility: hidden; opacity: 0; }
+.despachos__panel { transition: opacity .35s ease; }
+.despachos__panel:not([hidden]) { opacity: 1; }
+.despachos__donde { font-size: .86rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--oro-texto); }
+.despachos__panel address { font: 600 clamp(1.5rem, 2.6vw, 2.1rem)/1.25 var(--tipo-rotulo); }
+.despachos__cita { color: var(--apagado); }
+.despachos__panel .enlace { justify-self: start; }
+.despachos__mapa {
+  grid-area: mapa; position: relative; align-self: stretch;
+  min-height: 22rem; border-radius: 1.4rem; overflow: hidden; background: var(--tostado);
+}
+.despachos__mapa iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+@media (max-width: 960px) {
+  .despachos { grid-template-columns: 1fr; grid-template-areas: "cabeza" "selector" "cuerpo" "mapa"; }
+  .despachos__mapa { margin-top: 1.8rem; min-height: 18rem; }
+}
+@media (prefers-reduced-motion: reduce) { .despachos__panel, .despachos__pestana { transition: none; } }
+/* ═══ fin [MÓDULO DESPACHOS] ═══ */
