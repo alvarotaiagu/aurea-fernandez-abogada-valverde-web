@@ -7,7 +7,7 @@
 ```
 node scripts/servir.mjs                 → http://127.0.0.1:4210  (hace falta HTTP: las viñetas son mask-image)
 http://127.0.0.1:4210/?revision         → con el mando de las dos versiones
-node scripts/verificar.mjs              → 175 comprobaciones (con --capturas guarda screenshots/)
+node scripts/verificar.mjs              → 186 comprobaciones (con --capturas guarda screenshots/)
 ```
 
 Si cambias datos o textos, ejecuta en este orden: `node scripts/construir.mjs` → `python scripts/logo.py` → `node scripts/versionar.mjs`.
@@ -113,6 +113,18 @@ Cada rama se parte además en sus 12 hojas para la cortina. Se hace una apertura
 La «hoja suelta» es la de arriba de la rama izquierda, recortada con su pecíolo. El favicon es el monograma.
 
 ---
+
+## Tercera ronda: hero «Bandada» + hojas al viento, rueda de texto y carril (elegidos en el tablero)
+
+El tablero con los cinco heros y los seis indicadores está en `../aurea-fernandez-abogada-valverde-bocetos/hero/` (se eligieron **A + D** y los indicadores **3 + 5**).
+
+| Pieza | Qué hace |
+|---|---|
+| **Cortina corta** | Sobre tinta, la hoja dorada se abre girando, «Áurea Mª Fernández» sube de su máscara y «ABOGADA» asienta. El panel sube con `expo.inOut` y su borde curvo. Ya no construye la corona: eso pasa en el hero. |
+| **Hero A · Bandada** | Cuando el panel empieza a subir, las 24 hojas reales del logo entran volando desde toda la pantalla, girando, y se posan cada una en su sitio. Aparece la rama, el oro se apaga y cae el monograma (recorte). Después el nombre, letra a letra. No se ejecuta en la sobria, ni al volver por el paso entre páginas, ni con movimiento reducido: ahí la corona ya está puesta. Hay red de seguridad a 9 s. |
+| **Hero D · Hojas al viento** | Cuando la bandada se posa, una ráfaga suelta hojas doradas que cruzan el hero y caen meciéndose. El ratón hace de viento. Es un canvas con la hoja pintada una vez por tono y copiada, sin filtros por fotograma. Se para fuera de pantalla y en la sobria. |
+| **Indicador 3 · Rueda de texto** | «Baja · Descubre» gira despacio alrededor de la hoja. Al pasar el ratón el centro se dora, y es magnético. Al pulsarla baja a las áreas. Cabe entera en la primera pantalla desde 1280×720, y se apaga al bajar. |
+| **Indicador 5 · Carril lateral** | A la derecha, a partir del hero: «02 / 08 · Áreas» con una hoja que avanza con la página. Sobre las bandas tinta se vuelve marfil, pieza a pieza. Cuenta las secciones que existen: si se quita un módulo, el total baja solo. En el móvil, solo el hilo y la hoja. |
 
 ## Segunda ronda de movimiento (1/10/2026, tras verla publicada)
 

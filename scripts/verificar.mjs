@@ -185,60 +185,55 @@ try {
     await page.goto(base + '/index.html', { waitUntil: 'domcontentloaded' });
     const muestras = [];
     const t0 = Date.now();
-    const instantes = [300, 900, 1400, 1950, 2350, 2600];
+    const instantes = [350, 1000, 1700, 2300, 2900, 3700];
     let capt = 0;
-    while (Date.now() - t0 < 4200) {
+    while (Date.now() - t0 < 6200) {
       const m = await page.evaluate(() => {
         const c = document.getElementById('cortina'); if (!c) return null;
-        const g = s => c.querySelector(s);
-        const insetDe = e => { const v = getComputedStyle(e).clipPath; const n = (v.match(/inset\(([^)]*)\)/) || [, '0'])[1].split(' ').map(parseFloat); return n; };
-        const hojas = [...c.querySelectorAll('.cortina__hojas--izq .cortina__hoja')].map(h => +getComputedStyle(h).opacity);
-        const tr = getComputedStyle(document.getElementById('cortina-panel')).transform;
-        const ty = tr === 'none' ? 0 : +tr.split(',')[5].replace(')', '');
-        const mono = g('.cc--mono');
-        const giros = [mono, document.querySelector('#hero-corona svg')].map(e => getComputedStyle(e).transform);
-        const animMono = mono.getAnimations().length + document.querySelector('#hero-corona').getAnimations({ subtree: true }).length;
+        const mtx = e => { const t = getComputedStyle(e).transform; if (t === 'none') return [1, 0, 0, 1, 0, 0]; return t.replace(/matrix\(|\)/g, '').split(',').map(Number); };
+        const panel = document.getElementById('cortina-panel');
+        const hojas = [...document.querySelectorAll('.hero__hoja')];
+        const lejos = Math.max(...hojas.map(h => { const t = h.getAttribute('transform') || ''; const mm = t.match(/matrix\(([^)]*)\)/); if (!mm) return 0; const v = mm[1].split(/[ ,]+/).map(Number); return Math.hypot(v[4], v[5]); }));
+        const mono = document.querySelector('.hero__mono');
+        const clipMono = (getComputedStyle(mono).clipPath.match(/inset\(([^)]*)\)/) || [, '0 0 0 0'])[1].split(' ').map(parseFloat);
         return {
-          display: getComputedStyle(c).display, panel: getComputedStyle(document.getElementById('cortina-panel')).backgroundColor,
-          izq: insetDe(g('.cc--izq'))[0], der: insetDe(g('.cc--der'))[0], mono: insetDe(mono)[2],
-          hojas, tinta: +getComputedStyle(g('.cc--tinta')).opacity, oro: +getComputedStyle(g('.cc--izq')).opacity,
-          ty, h: innerHeight, giros, animMono
+          display: getComputedStyle(c).display, panel: getComputedStyle(panel).backgroundColor, ty: mtx(panel)[5], h: innerHeight,
+          hoja: +getComputedStyle(c.querySelector('.cortina__hoja')).opacity,
+          nombre: mtx(c.querySelector('.cortina__nombre span'))[5] / (c.querySelector('.cortina__nombre span').offsetHeight || 1),
+          lejos, oroMedio: hojas.reduce((s, h) => s + +getComputedStyle(h).opacity, 0) / hojas.length,
+          base: +getComputedStyle(document.querySelector('.hero__rama > use:not(.hero__hoja)')).opacity,
+          mono: clipMono[2] || 0,
+          giros: [getComputedStyle(mono).transform, mono.getAttribute('transform') || 'none', getComputedStyle(document.querySelector('#hero-corona svg')).transform],
+          animMono: mono.getAnimations().length + document.querySelector('#hero-corona svg').getAnimations().length,
+          viento: !!(window.Aurea && window.Aurea.viento && window.Aurea.viento.activo())
         };
       });
       if (!m) break;
       muestras.push({ t: Date.now() - t0, ...m });
-      if (conCapturas && capt < instantes.length && Date.now() - t0 >= instantes[capt]) { await page.screenshot({ path: foto('00' + 'abcdef'[capt] + '-cortina.png') }); capt++; }
+      if (conCapturas && capt < instantes.length && Date.now() - t0 >= instantes[capt]) { await page.screenshot({ path: foto('00' + 'abcdef'[capt] + '-cortina-bandada.png') }); capt++; }
       await page.waitForTimeout(30);
     }
     const al = muestras.find(m => m.t < 300);
     const fondoHero = await page.evaluate(() => getComputedStyle(document.getElementById('inicio')).backgroundColor);
-    comprobar(al && al.display === 'block' && /21, 20, 18/.test(al.panel) && al.panel !== fondoHero, 'checklist 5 · cortina: tapa al cargar, en tinta (' + (al && al.panel) + '), distinta del hero marfil (' + fondoHero + ')');
-    const izqAntes = muestras.find(m => m.izq < 99 && m.izq < m.der - 1);      /* la izquierda va por delante */
-    const creciendo = muestras.find(m => m.izq > 5 && m.izq < 95);
-    comprobar(!!izqAntes && !!creciendo, 'cortina 1 · las ramas crecen por recorte desde el tallo (inset de arriba ' + (creciendo ? creciendo.izq.toFixed(0) + '%' : '—') + '), la izquierda primero');
-    const n = muestras[0] ? muestras[0].hojas.length : 0;
-    const primeraDorada = muestras.findIndex(m => m.hojas[0] > 0.95), ultimaDorada = muestras.findIndex(m => m.hojas[n - 1] > 0.95);
-    const aMedias = muestras.find(m => m.hojas[0] > 0.95 && m.hojas[n - 1] < 0.05);
-    comprobar(n === 12 && primeraDorada >= 0 && ultimaDorada > primeraDorada && !!aMedias, 'cortina 2 · las 12 hojas de cada rama se doran una a una, de abajo arriba (copia dorada, solo opacidad)');
-    const cayendo = muestras.find(m => m.mono > 5 && m.mono < 95);
-    comprobar(!!cayendo, 'cortina 3 · el monograma cae por recorte de arriba abajo (inset de abajo ' + (cayendo ? cayendo.mono.toFixed(0) + '%' : '—') + ')');
+    comprobar(al && al.display === 'block' && /21, 20, 18/.test(al.panel) && al.panel !== fondoHero, 'checklist 5 · cortina: tapa al cargar, en tinta (' + (al && al.panel) + '), distinta del hero marfil');
+    comprobar(muestras.some(m => m.display === 'block' && m.hoja > 0.9) && muestras.some(m => m.display === 'block' && Math.abs(m.nombre) < 0.05 && m.ty > -5), 'cortina 1-3 · la hoja dorada se abre, el nombre sube de su máscara y «ABOGADA» asienta (antes de que suba el panel)');
     const medias = muestras.find(m => m.display === 'block' && m.ty < -m.h * 0.08 && m.ty > -m.h * 0.92);
-    comprobar(!!medias, 'cortina 4 · fotograma a medias: el panel subiendo (y = ' + (medias ? Math.round(medias.ty) : '—') + ' px)');
-    const cruce = muestras.find(m => m.tinta > 0.1 && m.tinta < 0.9);
-    comprobar(!!cruce && cruce.ty < -m0(muestras).h * 0.3, 'cortina 4 · la corona pasa de oro a tinta con un fundido entre dos copias, cuando el panel ya la destapa (y = ' + (cruce ? Math.round(cruce.ty) : '—') + ')');
-    function m0(a) { return a[0] || { h: 900 }; }
+    comprobar(!!medias, 'cortina 4 · fotograma a medias: el panel tinta subiendo (y = ' + (medias ? Math.round(medias.ty) : '—') + ' px)');
+    /* bandada */
+    const volando = muestras.find(m => m.lejos > 300 && m.oroMedio > 0.3);
+    const sinRama = muestras.find(m => m.lejos > 300 && m.base < 0.1);
+    const posadas = muestras.filter(m => m.t > 4500);
+    const final = posadas[posadas.length - 1] || {};
+    comprobar(!!volando && !!sinRama, 'bandada · las 24 hojas entran volando desde lejos (' + (volando ? Math.round(volando.lejos) : '—') + ' unidades del logo) antes de que aparezca la rama');
+    comprobar(final.lejos === 0 && final.base > 0.95 && final.oroMedio < 0.05 && final.mono < 0.5, 'bandada · al final las hojas están posadas, la rama puesta, el oro apagado y el monograma entero');
+    comprobar(muestras.some(m => m.mono > 5 && m.mono < 95), 'bandada · el monograma cae por recorte de arriba abajo');
+    comprobar(muestras.some(m => m.t > 3000 && m.viento) && !muestras.some(m => m.t < 1500 && m.viento), 'hojas al viento · empiezan cuando la bandada se posa');
     const quieta = muestras.every(m => m.giros.every(g => g === 'none') && m.animMono === 0);
-    comprobar(quieta, 'balanza: el monograma no gira nunca (transform none y ninguna animación en ' + muestras.length + ' fotogramas, cortina y hero)');
+    comprobar(quieta, 'balanza: el monograma no gira nunca (transform none y ninguna animación en ' + muestras.length + ' fotogramas)');
     await esperarCortina(page);
     comprobar(await page.evaluate(() => getComputedStyle(document.getElementById('cortina')).display) === 'none', 'cortina: acaba en display:none (pasada normal)');
-    const traspaso = await page.evaluate(() => {
-      const d = window.Aurea.cortinaDestino(), r = document.getElementById('hero-corona').getBoundingClientRect();
-      return { d, hero: { left: r.left, top: r.top, width: r.width, height: r.height }, y: scrollY };
-    });
-    const igual = traspaso.d && ['left', 'top', 'width', 'height'].every(k => Math.abs(traspaso.d[k] - traspaso.hero[k]) <= 1);
-    comprobar(igual, 'cortina: su corona estaba EXACTAMENTE donde está la del hero (traspaso) → ' + JSON.stringify(traspaso.hero).replace(/(\.\d)\d+/g, '$1'));
     comprobar(await page.evaluate(() => document.documentElement.classList.contains('con-movimiento')), 'checklist 7 · con-movimiento activo con GSAP y sin movimiento reducido');
-    await page.waitForTimeout(1600);
+    await page.waitForTimeout(3400);   /* el nombre entra cuando la bandada se posa */
     const heroVisto = await page.evaluate(() => ({ letras: [...document.querySelectorAll('#hero-nombre .letra')].every(l => getComputedStyle(l).transform === 'none' || /, 0\)$/.test(getComputedStyle(l).transform)), abog: +getComputedStyle(document.getElementById('hero-abogada')).opacity }));
     comprobar(heroVisto.letras && heroVisto.abog > 0.95, 'hero: el nombre entra con char-reveal y «ABOGADA» cierra su espaciado');
     comprobar(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth) <= 1, 'sin desbordamiento horizontal en escritorio');
@@ -429,10 +424,10 @@ try {
     const { contexto, page, errores } = await nuevaPagina(navegador, { cookiesVistas: true });
     await contexto.addInitScript(() => { document.addEventListener('DOMContentLoaded', () => { window.__paso = document.documentElement.classList.contains('con-paso'); }); });
     await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
-    await esperarCortina(page); await page.waitForTimeout(1800);
+    await esperarCortina(page); await page.waitForTimeout(3200);   /* la bandada se posa */
     const retAntes = await page.evaluate(() => getComputedStyle(document.getElementById('sobre-retrato')).clipPath);
-    const ind = await page.evaluate(() => ({ anim: getComputedStyle(document.querySelector('.hero__bajar-hilo svg')).animationName, ancho: document.querySelector('.hero__bajar-hilo svg').getBoundingClientRect().width, op: getComputedStyle(document.getElementById('hero-bajar')).opacity, datos: [...document.querySelectorAll('.hero__dato')].map(d => d.textContent.replace(/\s+/g, ' ').trim()), luz: getComputedStyle(document.getElementById('inicio')).backgroundImage.includes('radial-gradient'), grano: getComputedStyle(document.getElementById('inicio'), '::before').backgroundImage.includes('svg') }));
-    comprobar(ind.anim === 'hoja-cae' && ind.ancho >= 20 && ind.op === '1' && /5,0.*183 opiniones en Google/.test(ind.datos[0]) && /cita previa/.test(ind.datos[1]) && ind.luz && ind.grano, 'hero premium: indicador de scroll (la hoja cae por su hilo), franja con 5,0★ · 183 opiniones y cita previa, luz de oro y grano de papel → ' + JSON.stringify(ind));
+    const ind = await page.evaluate(() => { const b = document.getElementById('hero-bajar').getBoundingClientRect(); return { anim: getComputedStyle(document.querySelector('.hero__bajar-anillo')).animationName, ancho: Math.round(b.width), abajo: Math.round(b.bottom), vh: innerHeight, op: getComputedStyle(document.getElementById('hero-bajar')).opacity, texto: document.querySelector('.hero__bajar-anillo textPath').textContent, datos: [...document.querySelectorAll('.hero__dato')].map(d => d.textContent.replace(/\s+/g, ' ').trim()), luz: getComputedStyle(document.getElementById('inicio')).backgroundImage.includes('radial-gradient'), grano: getComputedStyle(document.getElementById('inicio'), '::before').backgroundImage.includes('svg') }; });
+    comprobar(ind.anim === 'rueda-gira' && ind.ancho >= 100 && ind.abajo <= ind.vh && ind.op === '1' && /Baja · Descubre/.test(ind.texto) && /5,0.*183 opiniones en Google/.test(ind.datos[0]) && /cita previa/.test(ind.datos[1]) && ind.luz && ind.grano, 'hero: indicador 3 · rueda de texto que gira, entera en pantalla; franja con 5,0★ · 183 opiniones y cita previa; luz de oro y grano → ' + JSON.stringify(ind));
     /* corona viva: el cursor cerca de la rama izquierda dora sus hojas */
     const cc = await page.locator('#hero-corona').boundingBox();
     await page.mouse.move(cc.x + cc.width * 0.12, cc.y + cc.height * 0.45, { steps: 8 });
@@ -495,6 +490,39 @@ try {
     await rm.contexto.close();
   }
 
+  /* ───── 1d. indicador (rueda de texto) y carril lateral ───── */
+  {
+    /* la rueda, entera en la primera pantalla en portátiles y móviles altos */
+    for (const [w, h] of [[1280, 720], [1366, 768], [1536, 864], [1920, 1080], [390, 844]]) {
+      const { contexto, page } = await nuevaPagina(navegador, { viewport: { width: w, height: h }, cookiesVistas: true, reducedMotion: 'reduce' });
+      await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
+      const r = await page.evaluate(() => { const b = document.getElementById('hero-bajar').getBoundingClientRect(); const a = document.querySelector('.hero__acciones').getBoundingClientRect(); return { top: Math.round(b.top), bottom: Math.round(b.bottom), vh: innerHeight, ctas: Math.round(a.bottom) }; });
+      comprobar(r.bottom <= r.vh && r.top >= r.ctas, 'indicador ' + w + '×' + h + ': la rueda se ve entera en la primera pantalla y no pisa los botones → ' + JSON.stringify(r));
+      await contexto.close();
+    }
+    const { contexto, page, errores } = await nuevaPagina(navegador, { cookiesVistas: true });
+    await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
+    await esperarCortina(page); await page.waitForTimeout(3500);
+    const carrilHero = await page.evaluate(() => window.Aurea.carril());
+    const rb = await page.locator('#hero-bajar').boundingBox();
+    await page.mouse.move(rb.x + rb.width / 2, rb.y + rb.height / 2, { steps: 6 }); await page.waitForTimeout(700);
+    const dorada = await page.evaluate(() => getComputedStyle(document.querySelector('.hero__bajar-nucleo')).backgroundColor);
+    comprobar(/156, 122, 60/.test(dorada), 'indicador: al pasar el ratón, el centro de la rueda se dora');
+    await page.mouse.click(rb.x + rb.width / 2, rb.y + rb.height / 2); await page.waitForTimeout(2200);
+    const tras = await page.evaluate(() => ({ areas: Math.round(document.getElementById('areas').getBoundingClientRect().top), op: getComputedStyle(document.getElementById('hero-bajar')).opacity, carril: window.Aurea.carril() }));
+    comprobar(Math.abs(tras.areas) < 120 && +tras.op < 0.05, 'indicador: al pulsarlo baja a las áreas y se apaga → ' + JSON.stringify({ areas: tras.areas, op: tras.op }));
+    comprobar(!carrilHero.visible && tras.carril.visible && tras.carril.n === '02' && tras.carril.nombre === 'Áreas' && tras.carril.total === '08', 'carril 5 · oculto en el hero; al bajar enseña «02 / 08 · Áreas» → ' + JSON.stringify(tras.carril));
+    await hasta(page, '#opiniones', 100); await page.waitForTimeout(600);
+    const op = await page.evaluate(() => window.Aurea.carril());
+    comprobar(op.nombre === 'Opiniones' && op.oscuro && op.p > tras.carril.p, 'carril: sobre la banda tinta de opiniones se vuelve marfil y la hoja ha avanzado (' + op.p.toFixed(2) + ')');
+    await rueda(page, 3, 300);
+    const viento = await page.evaluate(() => window.Aurea.viento.activo());
+    comprobar(!viento, 'hojas al viento: se paran cuando el hero sale de pantalla');
+    comprobar(errores.length === 0, 'indicador y carril: consola sin errores' + (errores.length ? ' → ' + errores.join(' | ') : ''));
+    if (conCapturas) { await hasta(page, '#despachos'); await page.screenshot({ path: foto('17-carril.png') }); }
+    await contexto.close();
+  }
+
   /* ───── 2. las dos densidades (?revision) ───── */
   {
     const { contexto, page, errores } = await nuevaPagina(navegador);
@@ -526,8 +554,8 @@ try {
     if (conCapturas) { await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(500); await page.screenshot({ path: foto('11-sobria.png') }); await hasta(page, '#areas'); await page.screenshot({ path: foto('11b-sobria-areas.png') }); await hasta(page, '#ficha'); await page.screenshot({ path: foto('11c-sobria-ficha.png') }); }
     /* al recargar en sobria: la cortina, sin corona */
     await page.reload({ waitUntil: 'domcontentloaded' }); await page.waitForTimeout(500);
-    const cs = await page.evaluate(() => ({ clase: document.documentElement.classList.contains('densidad-sobria'), corona: getComputedStyle(document.getElementById('cortina-corona')).display, nombre: getComputedStyle(document.getElementById('cortina-nombre')).display, heroCorona: getComputedStyle(document.getElementById('hero-corona')).display }));
-    comprobar(cs.clase && cs.corona === 'none' && cs.nombre === 'grid' && cs.heroCorona === 'block', 'sobria: la corona solo en el hero (la cortina enseña el nombre), aplicada sin parpadeo desde el <head>');
+    const cs = await page.evaluate(() => ({ clase: document.documentElement.classList.contains('densidad-sobria'), cortina: getComputedStyle(document.getElementById('cortina')).display, heroCorona: getComputedStyle(document.getElementById('hero-corona')).display, hojasHero: getComputedStyle(document.querySelector('.hero__hoja')).display, base: getComputedStyle(document.querySelector('.hero__rama > use:not(.hero__hoja)')).opacity }));
+    comprobar(cs.clase && cs.heroCorona === 'block' && cs.hojasHero === 'none' && cs.base === '1', 'sobria: sin bandada ni oro en el hero (la corona, puesta y quieta), aplicada sin parpadeo desde el <head> → ' + JSON.stringify(cs));
     await esperarCortina(page);
     await page.click('[data-densidad="laurel"]'); await page.waitForTimeout(900);
     const vuelta = await page.evaluate(() => ({ laurel: document.documentElement.classList.contains('densidad-laurel'), alt: document.querySelectorAll('.area__alternar').length, pila: getComputedStyle(document.querySelector('.pila__item')).position, cinta: getComputedStyle(document.getElementById('cinta')).display }));
@@ -735,9 +763,11 @@ try {
     await contexto.addCookies([{ name: 'SOCS', value: 'CAI', domain: '.google.com', path: '/' }, { name: 'CONSENT', value: 'YES+cb', domain: '.google.com', path: '/' }]);
     try {
       await page.goto('https://maps.google.com/?cid=18416980175827621575', { waitUntil: 'domcontentloaded', timeout: 20000 });
-      await page.waitForTimeout(4000);
+      /* Google tarda en poner el nombre del sitio en el título: se espera hasta 12 s */
+      await page.waitForFunction(() => document.title && document.title !== 'Google Maps', null, { timeout: 12000 }).catch(() => {});
       const t = (await page.title()) + ' ' + page.url();
       if (/consent\.google/.test(page.url())) notas.push('AVISO · ficha de Google: la consulta acabó en el aviso de consentimiento de Google; no se pudo leer el título');
+      else if ((await page.title()) === 'Google Maps') notas.push('AVISO · ficha de Google: Google no llegó a cargar el sitio en 12 s (red); sin comprobar esta vez');
       else comprobar(/F[eé]rn[aá]ndez|Aurea|Áurea/i.test(decodeURIComponent(t)), 'la ficha de Google (cid) abre la suya → ' + decodeURIComponent(t).slice(0, 120));
     } catch (e) { notas.push('AVISO · ficha de Google sin comprobar (sin red): ' + e.message.slice(0, 80)); }
     await contexto.close();

@@ -181,26 +181,19 @@ html.con-js.cortina-fuera .cortina { display: none; }
   border-radius: 0 0 50% 50% / 0 0 100% 100%;
   transform-origin: 50% 0; transform: scaleY(0);
 }
-.cortina__corona {
-  position: absolute;
-  /* respaldo: donde suele caer la del hero; el JS la pone exactamente encima */
-  left: calc(50% - 140px); top: 18vh; width: 280px; aspect-ratio: 1006 / 818;
+/* contenido de la cortina: la hoja dorada, su nombre y «ABOGADA» */
+.cortina__contenido {
+  position: absolute; inset: 0;
+  display: grid; place-content: center; justify-items: center; gap: clamp(.7rem, 2vh, 1.1rem);
+  color: var(--marfil); text-align: center;
 }
-.cc { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.cc--rama, .cc--mono { fill: var(--marfil); }
-.cc--oro { fill: var(--oro-claro); }
-.cc--tinta { fill: var(--tinta); }
-.con-js .cc--izq, .con-js .cc--der { clip-path: inset(100% 0 0 0); }
-.con-js .cc--mono { clip-path: inset(0 0 100% 0); }
+.cortina__hoja { width: clamp(4rem, 9vw, 6rem); height: auto; max-width: none; fill: var(--oro-claro); }
 .con-js .cortina__hoja { opacity: 0; }
-.con-js .cc--tinta { opacity: 0; }
-.cortina__nombre {
-  display: none;                                   /* solo en la sobria (sin corona) */
-  position: absolute; inset: 0; place-content: center; text-align: center;
-  overflow: hidden; color: var(--marfil);
-  font: 600 clamp(2rem, 6vw, 4rem)/1.1 var(--tipo-rotulo);
-}
+.cortina__nombre { overflow: hidden; padding: .12em .05em .06em; font: 700 clamp(2rem, 6vw, 4.2rem)/1.1 var(--tipo-rotulo); }
 .cortina__nombre span { display: inline-block; }
+.con-js .cortina__nombre span { transform: translateY(110%); }
+.cortina__abogada { font: 600 clamp(.85rem, 1.4vw, 1.05rem)/1 var(--tipo-rotulo); letter-spacing: .6em; margin-left: .6em; text-transform: uppercase; color: var(--oro-claro); }
+.con-js .cortina__abogada { opacity: 0; }
 
 /* ═══════════════ cabecera ═══════════════ */
 .cabecera {
@@ -264,30 +257,36 @@ html.con-js.cortina-fuera .cortina { display: none; }
 /* la franja de abajo: dos datos y, en medio, el indicador de scroll */
 .hero__pie {
   display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; gap: 1.5rem;
-  width: 100%; max-width: var(--ancho); margin-top: auto; padding-top: clamp(1.4rem, 4vh, 2.6rem);
+  width: 100%; max-width: var(--ancho); margin-top: auto; padding-top: clamp(.8rem, 2.4vh, 2rem);
 }
 .hero__dato { font-size: .92rem; letter-spacing: .04em; color: var(--apagado); text-align: left; padding-bottom: .35rem; border-bottom: 1px solid var(--linea); justify-self: start; }
 .hero__dato--der { text-align: right; justify-self: end; }
 .hero__dato-cifra { font: 700 1.05rem/1 var(--tipo-rotulo); color: var(--tinta); }
 .estrella-hero { color: var(--oro); }
-.hero__bajar { display: grid; justify-items: center; gap: .55rem; text-decoration: none; color: var(--apagado); }
-.hero__bajar-texto { font-size: .72rem; font-weight: 600; letter-spacing: .32em; text-transform: uppercase; margin-left: .32em; }
-/* un hilo fino por el que cae la hoja meciéndose */
-.hero__bajar-hilo { position: relative; display: block; width: 1px; height: 4.2rem; background: linear-gradient(var(--linea), rgba(21, 20, 18, .3)); }
-.hero__bajar-hilo svg { position: absolute; left: 50%; top: 0; width: 1.5rem; max-width: none; height: auto; margin-left: -.75rem; fill: var(--oro); }
-@keyframes hoja-cae {
-  0%   { transform: translate(0, -.4rem) rotate(-28deg); opacity: 0; }
-  15%  { opacity: 1; }
-  40%  { transform: translate(.45rem, 1.3rem) rotate(8deg); }
-  65%  { transform: translate(-.4rem, 2.5rem) rotate(-18deg); }
-  85%  { opacity: 1; }
-  100% { transform: translate(.15rem, 3.4rem) rotate(4deg); opacity: 0; }
+/* indicador de scroll: rueda de texto que gira despacio, con la hoja en el centro */
+.hero__bajar {
+  position: relative; display: grid; place-items: center;
+  width: clamp(6.6rem, 13.5vh, 7.8rem); aspect-ratio: 1;
+  color: var(--tinta); text-decoration: none; border-radius: 50%;
 }
-.con-movimiento .hero__bajar-hilo svg { animation: hoja-cae 2.6s cubic-bezier(.45, 0, .55, 1) infinite; }
-html:not(.con-movimiento) .hero__bajar-hilo svg { top: 1.2rem; transform: rotate(-14deg); }
-.hero__bajar:hover .hero__bajar-texto, .hero__bajar:focus-visible .hero__bajar-texto { color: var(--tinta); }
+.hero__bajar-anillo { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.hero__bajar-anillo text { font: 600 12.5px var(--tipo-texto); letter-spacing: .2em; text-transform: uppercase; fill: currentColor; }
+.con-movimiento .hero__bajar-anillo { animation: rueda-gira 16s linear infinite; }
+@keyframes rueda-gira { to { transform: rotate(360deg); } }
+.hero__bajar-nucleo {
+  display: grid; place-items: center; width: 46%; aspect-ratio: 1; border-radius: 50%;
+  background: var(--tinta); transition: background-color .45s var(--suave), transform .5s var(--suave);
+}
+.hero__bajar-nucleo svg { width: 46%; max-width: none; height: auto; fill: var(--oro-claro); transform: rotate(90deg); transition: fill .45s var(--suave); }
+.con-movimiento .hero__bajar-nucleo svg { animation: rueda-asoma 1.9s ease-in-out infinite; }
+@keyframes rueda-asoma { 0%, 100% { transform: translateY(-3px) rotate(90deg); } 50% { transform: translateY(4px) rotate(90deg); } }
+.hero__bajar:hover .hero__bajar-nucleo, .hero__bajar:focus-visible .hero__bajar-nucleo { background: var(--oro); transform: scale(1.08); }
+.hero__bajar:hover .hero__bajar-nucleo svg, .hero__bajar:focus-visible .hero__bajar-nucleo svg { fill: var(--marfil); }
+/* el viento: hojas doradas detrás del texto (entre el grano y el contenido) */
+.hero__viento { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 1.2s ease; }
+.hero__viento.es-vivo { opacity: 1; }
 .hero__corona {
-  width: clamp(150px, min(46vw, 34vh), 320px);
+  width: clamp(140px, min(46vw, 25vh), 300px);
   aspect-ratio: 1006 / 818;
   fill: var(--tinta);
 }
@@ -295,7 +294,7 @@ html:not(.con-movimiento) .hero__bajar-hilo svg { top: 1.2rem; transform: rotate
 .hero__nombre {
   margin-top: clamp(1rem, 3.4vh, 2rem);
   max-width: 22ch;
-  font: 700 clamp(2.1rem, 5.4vw, 4.6rem)/1.1 var(--tipo-rotulo);
+  font: 700 clamp(2.1rem, min(5.4vw, 7.4vh), 4.6rem)/1.1 var(--tipo-rotulo);
   letter-spacing: -.012em;
   text-wrap: balance;
 }
@@ -570,8 +569,6 @@ body:has(#despachos) .direcciones-planas { display: none; }
    separadores, viñetas, índice y marquee, y la pila (las áreas pasan a
    acordeón). A cambio, dato: la ficha rápida, que la cargada no tiene. */
 .ficha { display: none; }
-.densidad-sobria .cortina__corona { display: none; }
-.densidad-sobria .cortina__nombre { display: grid; }
 .densidad-sobria .pie__corona { display: none; }
 .densidad-sobria .cinta { display: none; }
 .densidad-sobria .hoja-icono { display: none; }
@@ -582,9 +579,10 @@ body:has(#despachos) .direcciones-planas { display: none; }
 .densidad-sobria .hechos svg { display: none; }
 .densidad-sobria .nota__hoja { display: none; }
 .densidad-sobria .hero__hoja { display: none; }
-.densidad-sobria .hero__bajar-hilo svg { display: none; }
-.densidad-sobria .hero__bajar-hilo::after { content: ''; position: absolute; left: -1px; top: 0; width: 3px; height: 1.2rem; background: var(--tinta); animation: hilo-baja 2.2s cubic-bezier(.65, 0, .35, 1) infinite; }
-@keyframes hilo-baja { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(3rem); opacity: 0; } }
+.densidad-sobria .hero__bajar-anillo { animation: none; }
+.densidad-sobria .hero__bajar-nucleo svg { display: none; }
+.densidad-sobria .hero__bajar-nucleo::after { content: "↓"; color: var(--marfil); font: 600 1.1rem/1 var(--tipo-texto); }
+.densidad-sobria .carril__hoja { display: none; }
 .densidad-sobria .hechos li { padding: .35rem .9rem; border: 1px solid var(--linea); border-radius: 999px; }
 /* áreas en acordeón */
 .densidad-sobria { --recorrido: 0px; }
@@ -611,6 +609,32 @@ body:has(#despachos) .direcciones-planas { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .mando { transition: none !important; } }
 /* ═══════════ fin del bloque [MANDO DE MAQUETA] ═══════════ */
+
+/* ═══════════════ carril lateral: sección en curso y cuánto queda ═══════════════ */
+.carril {
+  position: fixed; right: clamp(.7rem, 1.6vw, 1.6rem); top: 50%; z-index: 300;
+  display: grid; justify-items: center; gap: .7rem;
+  transform: translate(1.2rem, -50%); opacity: 0; pointer-events: none;
+  color: var(--tinta);
+  transition: opacity .5s var(--suave), transform .6s var(--suave), color .4s ease;
+}
+.carril.es-visible { opacity: 1; transform: translate(0, -50%); }
+.carril__num { font: 700 .95rem/1 var(--tipo-rotulo); font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
+.carril__num small { font-weight: 400; color: var(--apagado); }
+.carril__pista { position: relative; display: block; width: 2px; height: clamp(5.5rem, 16vh, 9rem); border-radius: 2px; background: rgba(21, 20, 18, .14); }
+.carril.es-oscuro .carril__pista { background: rgba(246, 242, 234, .2); }
+.carril__relleno { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--p, 0) * 100%); border-radius: 2px; background: var(--oro); }
+.carril__hoja { position: absolute; left: 50%; top: calc(var(--p, 0) * 100%); width: 1.25rem; max-width: none; height: auto; margin: -.35rem 0 0 -.62rem; fill: var(--oro); transform: rotate(90deg); }
+.carril__nombre { font-size: .72rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg); color: var(--apagado); white-space: nowrap; }
+.carril__num.es-claro, .carril__num.es-claro small { color: var(--marfil); }
+.carril__nombre.es-claro { color: var(--apagado-oscuro); }
+@media (max-width: 760px) {
+  /* en el móvil, solo el hilo y la hoja: el texto no cabe sin pisar el contenido */
+  .carril { right: .35rem; }
+  .carril__num, .carril__nombre { display: none; }
+  .carril__pista { height: 6rem; }
+}
+@media (prefers-reduced-motion: reduce) { .carril { transition: none; } }
 
 /* ═══════════════ corona viva del hero ═══════════════ */
 /* copia dorada de cada hoja, encendida cerca del cursor (solo opacidad) */
@@ -749,8 +773,7 @@ html.con-cursor, html.con-cursor * { cursor: none !important; }
   .hero__acciones { margin-top: 1rem; gap: .5rem; }
   .hero__acciones .boton { min-height: 2.9rem; padding: .7rem 1.2rem; }
   .hero__pie { padding-top: .9rem; }
-  .hero__bajar { gap: .35rem; }
-  .hero__bajar-hilo { height: 2.6rem; }
+  .hero__bajar { width: 4.8rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

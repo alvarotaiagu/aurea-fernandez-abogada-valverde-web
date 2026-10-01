@@ -32,7 +32,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ibarra+Real+Nova:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="css/estilos.css?v=575d0d99">
+<link rel="stylesheet" href="css/estilos.css?v=ffebdd48">
 <link rel="stylesheet" href="css/opiniones.css?v=2da96cdd" data-modulo="opiniones">
 <link rel="stylesheet" href="css/casos.css?v=ce62c427" data-modulo="casos">
 <link rel="stylesheet" href="css/despachos.css?v=652e3174" data-modulo="despachos">
@@ -117,17 +117,14 @@
 
 <a class="salto-contenido" href="#contenido">Saltar al contenido</a>
 
-<!-- ───────── Cortina: la corona crece sobre tinta y se queda en el hero ───────── -->
+<!-- ───────── Cortina corta: la hoja dorada y su nombre sobre tinta; la corona se construye en el hero ───────── -->
 <div class="cortina" id="cortina" aria-hidden="true">
   <div class="cortina__panel" id="cortina-panel"><span class="cortina__borde" id="cortina-borde"></span></div>
-  <div class="cortina__corona" id="cortina-corona">
-    <svg class="cc cc--rama cc--izq" viewBox="500 44 1006 818"><use href="#laurel-izq"/></svg>
-    <svg class="cc cc--rama cc--der" viewBox="500 44 1006 818"><use href="#laurel-der"/></svg>
-    <svg class="cc cc--oro" viewBox="500 44 1006 818"><!-- hojas:inicio · generado por scripts/logo.py · de abajo arriba --><g class="cortina__hojas cortina__hojas--izq"><use class="cortina__hoja" href="#hoja-izq-0"/><use class="cortina__hoja" href="#hoja-izq-1"/><use class="cortina__hoja" href="#hoja-izq-2"/><use class="cortina__hoja" href="#hoja-izq-3"/><use class="cortina__hoja" href="#hoja-izq-4"/><use class="cortina__hoja" href="#hoja-izq-5"/><use class="cortina__hoja" href="#hoja-izq-6"/><use class="cortina__hoja" href="#hoja-izq-7"/><use class="cortina__hoja" href="#hoja-izq-8"/><use class="cortina__hoja" href="#hoja-izq-9"/><use class="cortina__hoja" href="#hoja-izq-10"/><use class="cortina__hoja" href="#hoja-izq-11"/></g><g class="cortina__hojas cortina__hojas--der"><use class="cortina__hoja" href="#hoja-der-0"/><use class="cortina__hoja" href="#hoja-der-1"/><use class="cortina__hoja" href="#hoja-der-2"/><use class="cortina__hoja" href="#hoja-der-3"/><use class="cortina__hoja" href="#hoja-der-4"/><use class="cortina__hoja" href="#hoja-der-5"/><use class="cortina__hoja" href="#hoja-der-6"/><use class="cortina__hoja" href="#hoja-der-7"/><use class="cortina__hoja" href="#hoja-der-8"/><use class="cortina__hoja" href="#hoja-der-9"/><use class="cortina__hoja" href="#hoja-der-10"/><use class="cortina__hoja" href="#hoja-der-11"/></g><!-- hojas:fin --></svg>
-    <svg class="cc cc--mono" viewBox="500 44 1006 818"><use href="#monograma"/></svg>
-    <svg class="cc cc--tinta" viewBox="500 44 1006 818"><use href="#laurel-izq"/><use href="#laurel-der"/><use href="#monograma"/></svg>
+  <div class="cortina__contenido" id="cortina-contenido">
+    <svg class="cortina__hoja" viewBox="0 0 136 75"><use href="#hoja"/></svg>
+    <p class="cortina__nombre" id="cortina-nombre"><span>Áurea Mª Fernández</span></p>
+    <p class="cortina__abogada">Abogada</p>
   </div>
-  <p class="cortina__nombre" id="cortina-nombre"><span>Áurea Mª Fernández</span></p>
 </div>
 
 <!-- ───────── Cabecera ───────── -->
@@ -157,6 +154,7 @@
 
   <!-- ───────── Hero: la corona, su nombre y cómo llamarla ───────── -->
   <section class="hero" id="inicio" aria-labelledby="hero-nombre">
+    <canvas class="hero__viento" id="hero-viento" aria-hidden="true"></canvas>
     <div class="hero__corona" id="hero-corona" aria-hidden="true">
       <svg viewBox="500 44 1006 818" focusable="false"><!-- hojas-hero:inicio · generado por scripts/logo.py --><g class="hero__rama hero__rama--izq" id="hero-rama-izq"><use href="#laurel-izq"/><use class="hero__hoja" href="#hoja-izq-0"/><use class="hero__hoja" href="#hoja-izq-1"/><use class="hero__hoja" href="#hoja-izq-2"/><use class="hero__hoja" href="#hoja-izq-3"/><use class="hero__hoja" href="#hoja-izq-4"/><use class="hero__hoja" href="#hoja-izq-5"/><use class="hero__hoja" href="#hoja-izq-6"/><use class="hero__hoja" href="#hoja-izq-7"/><use class="hero__hoja" href="#hoja-izq-8"/><use class="hero__hoja" href="#hoja-izq-9"/><use class="hero__hoja" href="#hoja-izq-10"/><use class="hero__hoja" href="#hoja-izq-11"/></g><g class="hero__rama hero__rama--der" id="hero-rama-der"><use href="#laurel-der"/><use class="hero__hoja" href="#hoja-der-0"/><use class="hero__hoja" href="#hoja-der-1"/><use class="hero__hoja" href="#hoja-der-2"/><use class="hero__hoja" href="#hoja-der-3"/><use class="hero__hoja" href="#hoja-der-4"/><use class="hero__hoja" href="#hoja-der-5"/><use class="hero__hoja" href="#hoja-der-6"/><use class="hero__hoja" href="#hoja-der-7"/><use class="hero__hoja" href="#hoja-der-8"/><use class="hero__hoja" href="#hoja-der-9"/><use class="hero__hoja" href="#hoja-der-10"/><use class="hero__hoja" href="#hoja-der-11"/></g><!-- hojas-hero:fin --><use class="hero__mono" href="#monograma"/></svg>
     </div>
@@ -169,9 +167,9 @@
     </div>
     <div class="hero__pie" id="hero-pie">
       <p class="hero__dato"><span class="hero__dato-cifra">5,0</span> <span class="estrella-hero" aria-hidden="true">★</span><span class="visualmente-oculto"> estrellas</span> · 183 opiniones en Google</p>
-      <a class="hero__bajar" id="hero-bajar" href="#areas" aria-label="Bajar a las áreas">
-        <span class="hero__bajar-texto" aria-hidden="true">Baja</span>
-        <span class="hero__bajar-hilo" aria-hidden="true"><svg viewBox="0 0 136 75"><use href="#hoja"/></svg></span>
+      <a class="hero__bajar iman" id="hero-bajar" href="#areas" aria-label="Bajar a las áreas">
+        <svg class="hero__bajar-anillo" viewBox="0 0 128 128" aria-hidden="true"><defs><path id="rueda-circulo" d="M64 64 m-53 0 a53 53 0 1 1 106 0 a53 53 0 1 1 -106 0"/></defs><text><textPath href="#rueda-circulo" textLength="330" lengthAdjust="spacing">Baja · Descubre · Baja · Descubre · </textPath></text></svg>
+        <span class="hero__bajar-nucleo" aria-hidden="true"><svg viewBox="0 0 136 75"><use href="#hoja"/></svg></span>
       </a>
       <p class="hero__dato hero__dato--der">Con cita previa · en despacho o por videollamada</p>
     </div>
@@ -652,6 +650,13 @@
   </div>
 </footer>
 
+<!-- ───────── Carril lateral: en qué sección estás y cuánto queda ───────── -->
+<aside class="carril" id="carril" aria-hidden="true">
+  <span class="carril__num"><b id="carril-n">01</b> <small>/ <span id="carril-total">08</span></small></span>
+  <span class="carril__pista"><i class="carril__relleno" id="carril-relleno"></i><svg class="carril__hoja" viewBox="0 0 136 75"><use href="#hoja"/></svg></span>
+  <span class="carril__nombre" id="carril-nombre">Inicio</span>
+</aside>
+
 <!-- ───────── Aviso de cookies ───────── -->
 <div class="cookies" id="cookies" role="region" aria-label="Aviso de cookies" hidden>
   <p class="cookies__texto">Esta web no usa cookies de seguimiento. Solo recuerda en tu navegador que has visto este aviso. El mapa de Google se carga únicamente si lo pides. <a href="privacidad.html#cookies">Más información</a></p>
@@ -672,7 +677,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-<script src="js/main.js?v=5798572a"></script>
+<script src="js/main.js?v=df43c5f1"></script>
 <script src="js/opiniones.js?v=676a2b97" data-modulo="opiniones"></script>
 <script src="js/casos.js?v=4fb59b2c" data-modulo="casos"></script>
 <script src="js/despachos.js?v=394b537c" data-modulo="despachos"></script>

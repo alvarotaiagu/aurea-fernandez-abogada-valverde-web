@@ -183,6 +183,8 @@ if __name__ == '__main__':
         claves = ['laurel-izq', 'laurel-der', 'monograma'] if rel == 'index.html' else ['monograma']
         if sustituir(rel, 'simbolos', bloque(claves, rel == 'index.html')):
             print('símbolos en ' + rel)
-    print(('hojas en index.html' if sustituir('index.html', 'hojas', hojas_bloque) else 'sin marcas de hojas en index.html'))
+    # (la cortina ya no lleva corona desde la bandada: hojas_bloque solo se usa si vuelve la marca)
+    if sustituir('index.html', 'hojas', hojas_bloque):
+        print('hojas de la cortina en index.html')
     print(('hojas del hero en index.html' if sustituir('index.html', 'hojas-hero', hero_bloque) else 'sin marcas de hojas-hero en index.html'))
     print({k: len(v) for k, v in d.items()}, {k: len(v) for k, v in hojas.items()})

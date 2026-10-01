@@ -145,17 +145,21 @@
       stagger: letras ? Math.min(0.035, 1.1 / piezas.length) : 0.08
     });
   }
+  /* la bandada (hero A): las 24 hojas vuelan y se posan. No en la sobria, ni al
+     llegar por el paso entre páginas, ni sin movimiento: ahí la corona ya está puesta */
+  var conBandada = movimiento && densidad() === 'laurel' && !html.classList.contains('con-paso') && !!document.getElementById('hero-corona');
+  var RETRASO_HERO = conBandada ? 1.95 : 0.25;
   todos('[data-revelar]').forEach(function (el) {
     var piezas = partir(el);
     if (!movimiento) return;
     if (el.closest('.hero')) {
-      document.addEventListener('cortina-abre', function () { revelar(el, piezas, 0.25); }, { once: true });
+      document.addEventListener('cortina-abre', function () { revelar(el, piezas, RETRASO_HERO); }, { once: true });
       return;
     }
     cuandoVisible([el], 0.3, function () { revelar(el, piezas); });
   });
 
-  /* ───────────────── cortina: la corona crece y se queda en el hero ───────────────── */
+  /* ───────────────── cortina corta: la hoja y su nombre; la corona se construye en el hero ───────────────── */
   var cortinaAbierta = false;
   function avisarApertura() {
     if (cortinaAbierta) return;
@@ -171,11 +175,10 @@
     if (!cort) { avisarApertura(); return; }
     var panel = document.getElementById('cortina-panel');
     var borde = document.getElementById('cortina-borde');
-    var corona = document.getElementById('cortina-corona');
-    var heroCorona = document.getElementById('hero-corona');
-    var izq = cort.querySelector('.cc--izq'), der = cort.querySelector('.cc--der');
-    var mono = cort.querySelector('.cc--mono'), oro = cort.querySelector('.cc--oro'), tintaCopia = cort.querySelector('.cc--tinta');
+    var contenido = document.getElementById('cortina-contenido');
+    var hoja = cort.querySelector('.cortina__hoja');
     var nombre = cort.querySelector('.cortina__nombre span');
+    var pie = cort.querySelector('.cortina__abogada');
     var hecho = false;
 
     function retirar() {
@@ -184,7 +187,7 @@
       avisarApertura();
       cort.classList.add('es-fuera');
       html.classList.add('cortina-fuera');
-      /* con Lenis, lagSmoothing(0) al retirarla, nunca antes (el tirón de la carga saltaría el crecimiento) */
+      /* con Lenis, lagSmoothing(0) al retirarla, nunca antes */
       if (gsapReady) gsap.ticker.lagSmoothing(0);
       if (lenis) lenis.start();
       refrescar();
@@ -192,107 +195,177 @@
     }
     Aurea.retirarCortina = retirar;
 
-    if (html.classList.contains('con-paso')) {
-      /* se llega por el paso entre páginas: la cortina larga no se repite */
-      setTimeout(retirar, 0);
-      return;
-    }
-    if (!movimiento) {
-      /* sin GSAP o con movimiento reducido se retira igual: nunca tapa la página */
-      setTimeout(retirar, reduce ? 0 : 60);
-      return;
-    }
+    if (html.classList.contains('con-paso')) { setTimeout(retirar, 0); return; }   /* se llega por el paso: no se repite */
+    if (!movimiento) { setTimeout(retirar, reduce ? 0 : 60); return; }              /* sin GSAP o reducido: nunca tapa */
 
     window.scrollTo(0, 0);
     if (lenis) lenis.stop();
 
-    /* la corona de la cortina va EXACTAMENTE donde está la del hero: es el traspaso */
-    var destino = null;
-    function colocar() {
-      if (!heroCorona) return;
-      var r = heroCorona.getBoundingClientRect();
-      destino = { left: r.left, top: r.top, width: r.width, height: r.height };
-      corona.style.left = r.left + 'px';
-      corona.style.top = r.top + 'px';
-      corona.style.width = r.width + 'px';
-      corona.style.height = r.height + 'px';
-    }
-    colocar();
-    window.addEventListener('resize', colocar);
-    Aurea.cortinaDestino = function () { return destino; };
-
-    var hojas = todos('.cortina__hoja', cort);
-    /* de abajo arriba, alternando ramas (cada rama ya viene ordenada así) */
-    var porLado = [todos('.cortina__hojas--izq .cortina__hoja', cort), todos('.cortina__hojas--der .cortina__hoja', cort)];
-    var orden = [];
-    for (var i = 0; i < Math.max(porLado[0].length, porLado[1].length); i++) {
-      if (porLado[0][i]) orden.push(porLado[0][i]);
-      if (porLado[1][i]) orden.push(porLado[1][i]);
-    }
-
-    var SALE = 1.75;
+    var SALE = 1.45;
     var tl = gsap.timeline({ paused: true, onComplete: retirar });
-    if (densidad() === 'laurel') {
-      /* 1 · las ramas crecen desde el tallo hacia arriba (recorte, no trazo: son formas rellenas) */
-      tl.fromTo(izq, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'power2.inOut', immediateRender: false }, 0)
-        .fromTo(der, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'power2.inOut', immediateRender: false }, 0.15)
-      /* 2 · las hojas se doran una a una, de abajo arriba (opacidad de una copia dorada) */
-        .to(orden, { opacity: 1, duration: 0.28, ease: 'power1.out', stagger: 0.95 / Math.max(1, orden.length) }, 0.45)
-      /* 3 · el monograma cae por recorte de arriba abajo; la balanza llega ya quieta */
-        .fromTo(mono, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.7, ease: 'expo.out', immediateRender: false }, 0.95)
-      /* 4 · salida: la corona pasa de oro a tinta con un fundido entre dos copias,
-         justo cuando el borde del panel (que sube con expo.inOut) le pasa por encima:
-         antes, la copia tinta se perdería sobre el panel tinta */
-        .add(function () {}, SALE);
-      var cruce = function () {
-        var h = window.innerHeight, r = destino || { top: h * 0.2, height: h * 0.3 };
-        /* fracción del recorrido en que el borde llega al pie y a la cabeza de la corona */
-        var pPie = Math.min(0.98, Math.max(0.02, 1 - (r.top + r.height) / h)), pCabeza = Math.min(0.99, Math.max(pPie + 0.01, 1 - r.top / h));
-        var ease = gsap.parseEase('expo.inOut');
-        var tiempo = function (p) { var lo = 0, hi = 1; for (var k = 0; k < 30; k++) { var m = (lo + hi) / 2; if (ease(m) < p) lo = m; else hi = m; } return lo * 1.1; };
-        return { ini: tiempo(pPie), fin: tiempo(pCabeza) };
-      };
-      var c = cruce();
-      tl.to(tintaCopia, { opacity: 1, duration: Math.max(0.12, c.fin - c.ini + 0.08), ease: 'none' }, SALE + c.ini - 0.04)
-        .to([izq, der, mono, oro], { opacity: 0, duration: Math.max(0.12, c.fin - c.ini + 0.08), ease: 'none' }, SALE + c.ini - 0.04);
-    } else {
-      /* sobria: sin corona en la cortina; el nombre sube de su máscara */
-      tl.fromTo(nombre, { yPercent: 110 }, { yPercent: 0, duration: 0.9, ease: 'expo.out', immediateRender: false }, 0.2);
-      SALE = 1.2;
-    }
-    /* …y el panel tinta sube con expo.inOut; el borde curvo se aplana al subir */
-    tl.call(avisarApertura, null, SALE)
+    /* 1 · la hoja dorada se abre girando · 2 · el nombre sube de su máscara · 3 · «ABOGADA» asienta el espaciado */
+    tl.fromTo(hoja, { opacity: 0, scale: 0.55, rotation: -60 }, { opacity: 1, scale: 1, rotation: -14, duration: 1.1, ease: 'expo.out', immediateRender: false }, 0.05)
+      .fromTo(nombre, { y: 0, yPercent: 110 }, { y: 0, yPercent: 0, duration: 0.95, ease: 'expo.out', immediateRender: false }, 0.3)
+      .fromTo(pie, { letterSpacing: '1.1em', opacity: 0 }, { letterSpacing: '.6em', opacity: 1, duration: 1.1, ease: 'expo.out', immediateRender: false }, 0.5)
+    /* 4 · el panel tinta sube con expo.inOut, con paralaje interno y el borde curvo que se aplana */
+      .call(avisarApertura, null, SALE)
+      .to(contenido, { yPercent: -40, opacity: 0, duration: 0.7, ease: 'power2.in' }, SALE)
       .to(panel, { yPercent: -100, duration: 1.1, ease: 'expo.inOut' }, SALE)
       .fromTo(borde, { scaleY: 0 }, { scaleY: 1, duration: 0.45, ease: 'power2.out', immediateRender: false }, SALE)
       .to(borde, { scaleY: 0, duration: 0.6, ease: 'power2.inOut' }, SALE + 0.45);
-    if (densidad() === 'sobria') tl.to(nombre, { yPercent: -60, opacity: 0, duration: 0.5, ease: 'power2.in' }, SALE);
 
     var arrancada = false;
-    function arrancar() { if (!arrancada) { arrancada = true; colocar(); tl.play(); } }
+    function arrancar() { if (!arrancada) { arrancada = true; tl.play(); } }
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(arrancar);
     setTimeout(arrancar, 450);
-
     /* quien empieza a bajar no espera: la cortina acelera, no se corta */
     function prisa() { if (!hecho) tl.timeScale(3); }
     ['wheel', 'touchstart', 'keydown'].forEach(function (ev) { window.addEventListener(ev, prisa, { passive: true, once: true }); });
-
     /* red de seguridad: pase lo que pase, a los 6 s la cortina se va */
     setTimeout(retirar, 6000);
   })();
 
-  /* ───────────────── hero: entra cuando la cortina empieza a subir ───────────────── */
+  /* ───────────────── hero A · bandada: las 24 hojas vuelan y se posan ───────────────── */
+  var bandadaHecha = !conBandada;
+  function avisarBandada() {
+    if (bandadaHecha && Aurea.bandadaAvisada) return;
+    bandadaHecha = true; Aurea.bandadaAvisada = true;
+    document.dispatchEvent(new CustomEvent('bandada-hecha'));
+  }
+  Aurea.trasBandada = function (fn) { if (bandadaHecha) fn(); else document.addEventListener('bandada-hecha', fn, { once: true }); };
+  Aurea.bandadaActiva = function () { return !bandadaHecha; };
+
+  (function bandada() {
+    var corona = document.getElementById('hero-corona');
+    if (!corona) return;
+    if (!conBandada) { Aurea.alAbrirse(function () { avisarBandada(); }); return; }
+    var svg = corona.querySelector('svg');
+    var hojas = todos('.hero__hoja', corona);
+    var bases = todos('.hero__rama > use:not(.hero__hoja)', corona);
+    var mono = corona.querySelector('.hero__mono');
+    /* estado de partida, antes de que se vea nada (la cortina tapa) */
+    gsap.set(bases, { opacity: 0 });
+    gsap.set(mono, { clipPath: 'inset(0% 0% 100% 0%)' });
+    gsap.set(hojas, { opacity: 0 });
+    Aurea.alAbrirse(function () {
+      /* desde toda la pantalla: 1 px de pantalla = 1006 / ancho de la corona en unidades del logo */
+      var r = svg.getBoundingClientRect();
+      var k = 1006 / Math.max(1, r.width);
+      var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      var tl = gsap.timeline({ onComplete: avisarBandada });
+      tl.fromTo(hojas, {
+        opacity: 0,
+        x: function () { return (gsap.utils.random(-0.15, 1.15) * window.innerWidth - cx) * k; },
+        y: function () { return (gsap.utils.random(-0.25, 1.1) * window.innerHeight - cy) * k; },
+        rotation: function () { return gsap.utils.random(-260, 260); },
+        scale: function () { return gsap.utils.random(0.4, 1.9); }
+      }, {
+        opacity: 1, x: 0, y: 0, rotation: 0, scale: 1, transformOrigin: '50% 50%',
+        duration: 1.7, ease: 'expo.out', stagger: { each: 0.032, from: 'random' }, immediateRender: true
+      }, 0.15)
+      /* al posarse aparece la rama, el oro se apaga y cae el monograma (la balanza, quieta) */
+        .to(bases, { opacity: 1, duration: 0.7, ease: 'power1.inOut' }, 1.45)
+        .to(hojas, { opacity: 0, duration: 0.7, ease: 'power1.in', stagger: { each: 0.018, from: 'end' } }, 1.7)
+        .fromTo(mono, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.85, ease: 'expo.out', immediateRender: false }, 1.75)
+        .set(hojas, { clearProps: 'transform' });
+      Aurea.bandada = tl;
+      /* quien empieza a bajar no espera */
+      var prisa = function () { if (tl.progress() < 1) tl.timeScale(3); };
+      ['wheel', 'touchstart', 'keydown'].forEach(function (ev) { window.addEventListener(ev, prisa, { passive: true, once: true }); });
+    });
+    /* red de seguridad: la corona nunca se queda a medias */
+    setTimeout(function () {
+      if (bandadaHecha) return;
+      if (Aurea.bandada) Aurea.bandada.progress(1);
+      gsap.set(bases, { opacity: 1 }); gsap.set(mono, { clipPath: 'none' }); gsap.set(hojas, { opacity: 0, clearProps: 'transform' });
+      avisarBandada();
+    }, 9000);
+  })();
+
+  /* ───────────────── hero: el resto entra con la corona ya puesta ───────────────── */
   (function hero() {
     var abogada = document.getElementById('hero-abogada');
     if (!abogada || !movimiento) return;
     var resto = todos('.hero__linea, .hero__acciones, .hero__pie');
+    var d = conBandada ? 1.7 : 0;
     Aurea.alAbrirse(function () {
       /* «ABOGADA» cierra su espaciado */
-      gsap.to(abogada, { letterSpacing: window.innerWidth <= 640 ? '.5em' : '.62em', opacity: 1, duration: 1.6, ease: 'expo.out', delay: 0.55 });
-      gsap.to(resto, { opacity: 1, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.1, delay: 0.85 });
+      gsap.to(abogada, { letterSpacing: window.innerWidth <= 640 ? '.5em' : '.62em', opacity: 1, duration: 1.6, ease: 'expo.out', delay: 0.55 + d });
+      gsap.to(resto, { opacity: 1, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.1, delay: 0.85 + d });
     });
   })();
 
-  /* ───────────────── hero premium: destello de oro, luz que sigue al cursor, profundidad e indicador ───────────────── */
+  /* ───────────────── hero D · hojas al viento, cuando la bandada se posa ───────────────── */
+  /* Canvas: la hoja del logo se pinta UNA vez en memoria (por tono) y se copia con
+     drawImage; ningún filtro por fotograma. Se para fuera de pantalla y en la sobria. */
+  (function viento() {
+    var hero = document.getElementById('inicio');
+    var cv = document.getElementById('hero-viento');
+    var forma = document.querySelector('#hoja path');
+    if (!hero || !cv || !forma || !movimiento || !window.Path2D) return;
+    var ctx = cv.getContext('2d');
+    var trazo = new Path2D(forma.getAttribute('d'));
+    var sprites = ['#9C7A3C', '#B8934A', '#CDB78F', '#7E6230'].map(function (c) {
+      var s = document.createElement('canvas'); s.width = 272; s.height = 150;
+      var x = s.getContext('2d'); x.scale(2, 2); x.translate(-690, -44); x.fillStyle = c; x.fill(trazo); return s;
+    });
+    var dpr = Math.min(1.5, window.devicePixelRatio || 1), W = 0, H = 0, hojas = [], visible = false, raf = 0, empezado = false;
+    var raton = { x: -9999, y: -9999, vx: 0, vy: 0 };
+    var r = function (a, b) { return a + Math.random() * (b - a); };
+    function medir() {
+      var b = hero.getBoundingClientRect(); W = b.width; H = b.height;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    }
+    function nueva(rafaga) {
+      var e = r(0.12, 0.26) * Math.min(1.25, Math.max(0.65, W / 1200));
+      return { x: rafaga ? r(-W * 0.55, -20) : r(0, W), y: rafaga ? r(-H * 0.1, H * 0.85) : r(-H * 0.6, -30), vx: rafaga ? r(3.5, 9) : r(-0.3, 0.5), vy: r(0.25, 0.8),
+        g: r(0, Math.PI * 2), vg: r(-0.025, 0.025), fase: r(0, 6.28), e: e, s: sprites[Math.floor(r(0, sprites.length))], a: r(0.35, 0.8) };
+    }
+    function pintar() {
+      if (!visible) { raf = 0; return; }
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      if (densidad() === 'laurel') {
+        hojas.forEach(function (h) {
+          h.fase += 0.02;
+          h.vx += Math.sin(h.fase) * 0.02; h.vx *= 0.985; h.vy = Math.min(h.vy + 0.004, 1.05);
+          var dx = h.x - raton.x, dy = h.y - raton.y, dd = dx * dx + dy * dy;
+          if (dd < 19600) { var f = (1 - Math.sqrt(dd) / 140) * 0.9; h.vx += (dx / 140) * f + raton.vx * 0.035; h.vy += (dy / 140) * f * 0.6; h.vg += 0.004 * (dx > 0 ? 1 : -1); }
+          h.x += h.vx; h.y += h.vy; h.g += h.vg + Math.sin(h.fase) * 0.01;
+          if (h.y > H + 40 || h.x > W + 140 || h.x < -W) Object.assign(h, nueva(false));
+          ctx.setTransform(dpr * h.e, 0, 0, dpr * h.e, h.x * dpr, h.y * dpr);
+          ctx.rotate(h.g);
+          ctx.globalAlpha = h.a;
+          ctx.drawImage(h.s, -68, -37.5, 136, 75);
+        });
+      }
+      raf = requestAnimationFrame(pintar);
+    }
+    function empezar() {
+      if (empezado) return;
+      empezado = true;
+      medir();
+      var n = window.innerWidth < 640 ? 18 : 38;
+      for (var i = 0; i < n; i++) hojas.push(nueva(i < n * 0.7));   /* una ráfaga desde la izquierda */
+      cv.classList.add('es-vivo');
+      if (visible && !raf) raf = requestAnimationFrame(pintar);
+    }
+    Aurea.viento = { activo: function () { return !!raf; }, hojas: function () { return hojas.length; } };
+    new IntersectionObserver(function (en) {
+      visible = en[0].isIntersecting;
+      if (visible && empezado && !raf) raf = requestAnimationFrame(pintar);
+    }).observe(hero);
+    if ('ResizeObserver' in window) new ResizeObserver(function () { if (empezado) medir(); }).observe(hero);
+    hero.addEventListener('pointermove', function (e) {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      var b = hero.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top;
+      raton.vx = raton.x < -9000 ? 0 : x - raton.x; raton.vy = raton.y < -9000 ? 0 : y - raton.y; raton.x = x; raton.y = y;
+    });
+    hero.addEventListener('pointerleave', function () { raton.x = raton.y = -9999; });
+    Aurea.trasBandada(function () { setTimeout(empezar, conBandada ? 150 : 600); });
+  })();
+
+  /* ───────────────── hero: luz que sigue al cursor, profundidad e indicador ───────────────── */
   (function heroPremium() {
     var hero = document.getElementById('inicio');
     var corona = document.getElementById('hero-corona');
@@ -304,28 +377,15 @@
       window.addEventListener('scroll', apagar, { passive: true });
       apagar();
     }
-    if (!movimiento || !corona) return;
-    /* 1 · al aterrizar la corona, un destello de oro la recorre de abajo arriba, una sola vez */
-    var porLado = [todos('.hero__rama--izq .hero__hoja', corona), todos('.hero__rama--der .hero__hoja', corona)];
-    var orden = [];
-    for (var i = 0; i < Math.max(porLado[0].length, porLado[1].length); i++) {
-      if (porLado[0][i]) orden.push(porLado[0][i]);
-      if (porLado[1][i]) orden.push(porLado[1][i]);
-    }
-    Aurea.alAbrirse(function () {
-      if (densidad() !== 'laurel' || !orden.length) return;
-      gsap.to(orden, { keyframes: [{ opacity: 0.95, duration: 0.32, ease: 'power1.out' }, { opacity: 0, duration: 0.8, ease: 'power2.in' }], stagger: 0.045, delay: 1.25 });
-    });
-    if (esTactil) return;
-    /* 2 · la luz de oro sigue al cursor, despacio · 3 · la corona y el nombre ganan profundidad */
+    if (!movimiento || !corona || esTactil) return;
     var nombre = document.getElementById('hero-nombre');
     var cx = gsap.quickTo(corona, 'x', { duration: 1.1, ease: 'power3.out' });
     var cy = gsap.quickTo(corona, 'y', { duration: 1.1, ease: 'power3.out' });
     var nx = nombre ? gsap.quickTo(nombre, 'x', { duration: 1.3, ease: 'power3.out' }) : null;
     var luz = { x: 50, y: 32 }, meta = { x: 50, y: 32 }, viva = false;
-    /* hasta que se retira la cortina, nada se mueve: su corona tiene que caer EXACTA sobre esta */
-    var lista = !document.getElementById('cortina') || html.classList.contains('cortina-fuera');
-    document.addEventListener('cortina-retirada', function () { lista = true; });
+    /* nada se mueve hasta que la cortina se ha ido y la bandada se ha posado */
+    var lista = false;
+    Aurea.trasBandada(function () { lista = true; });
     function pintarLuz() {
       luz.x += (meta.x - luz.x) * 0.06; luz.y += (meta.y - luz.y) * 0.06;
       hero.style.setProperty('--lx', luz.x.toFixed(2) + '%');
@@ -360,10 +420,11 @@
     if (der) gsap.to(der, { rotation: -7, svgOrigin: '1122 852', ease: 'none', scrollTrigger: Object.assign({}, recoger) });
     if (esTactil) return;
     var hojas = todos('.hero__hoja', corona);
-    var poner = hojas.map(function (h) { return gsap.quickTo(h, 'opacity', { duration: 0.55, ease: 'power2.out' }); });
-    var pendiente = null;
+    var poner = null, pendiente = null;
+    /* las mismas hojas vuelan en la bandada: el oro del cursor espera a que se posen */
+    Aurea.trasBandada(function () { poner = hojas.map(function (h) { return gsap.quickTo(h, 'opacity', { duration: 0.55, ease: 'power2.out' }); }); });
     hero.addEventListener('pointermove', function (e) {
-      if (e.pointerType && e.pointerType !== 'mouse') return;
+      if ((e.pointerType && e.pointerType !== 'mouse') || !poner) return;
       var x = e.clientX, y = e.clientY;
       if (pendiente) return;
       pendiente = requestAnimationFrame(function () {
@@ -376,7 +437,7 @@
         });
       });
     });
-    hero.addEventListener('pointerleave', function () { poner.forEach(function (p) { p(0); }); });
+    hero.addEventListener('pointerleave', function () { if (poner) poner.forEach(function (p) { p(0); }); });
   })();
 
   /* ───────────────── el retrato se abre dentro de su arco, con paralaje ───────────────── */
@@ -704,6 +765,49 @@
       setTimeout(refrescar, 30);
       document.getElementById('enviar-whatsapp').focus({ preventScroll: true });
     });
+  })();
+
+  /* ───────────────── carril lateral: en qué sección estás y cuánto queda ───────────────── */
+  /* Es contenido (orientación), no adorno: funciona sin GSAP y con movimiento reducido.
+     Cuenta las secciones que existen de verdad: si se quita un módulo, el total baja solo. */
+  (function carril() {
+    var c = document.getElementById('carril');
+    if (!c) return;
+    var nEl = document.getElementById('carril-n'), totalEl = document.getElementById('carril-total'), nombreEl = document.getElementById('carril-nombre');
+    var NOMBRES = { inicio: 'Inicio', areas: 'Áreas', 'como-trabajo': 'Cómo trabajo', 'sobre-mi': 'Sobre mí', ficha: 'Ficha rápida', opiniones: 'Opiniones', casos: 'Casos', despachos: 'Despachos', escribeme: 'Escríbeme', notas: 'Notas' };
+    var oscuras = ['#cinta', '#opiniones', '#pie'];
+    var secciones = [], pendiente = false;
+    function listar() {
+      secciones = todos('main > section[id]').filter(function (s) { return !s.hidden && s.offsetHeight > 0 && NOMBRES[s.id]; });
+      totalEl.textContent = String(secciones.length).padStart(2, '0');
+    }
+    function actualizar() {
+      pendiente = false;
+      var y = window.pageYOffset, vh = window.innerHeight;
+      var total = document.documentElement.scrollHeight - vh;
+      c.style.setProperty('--p', total > 0 ? Math.min(1, y / total).toFixed(4) : 0);
+      c.classList.toggle('es-visible', y > vh * 0.55);
+      var k = 0;
+      secciones.forEach(function (s, i) { if (s.getBoundingClientRect().top <= vh * 0.4) k = i; });
+      if (secciones[k]) {
+        var n = String(k + 1).padStart(2, '0');
+        if (nEl.textContent !== n) { nEl.textContent = n; nombreEl.textContent = NOMBRES[secciones[k].id]; }
+      }
+      /* sobre las bandas tinta (marquee, opiniones, pie) el carril se vuelve marfil */
+      /* cada pieza mira lo que tiene debajo: el número puede caer en la banda y el hilo, fuera */
+      var sobre = function (el) { var m = el.getBoundingClientRect(), cy = m.top + m.height / 2; return oscuras.some(function (sel) { var e = document.querySelector(sel); if (!e || e.offsetHeight === 0) return false; var r = e.getBoundingClientRect(); return r.top <= cy && r.bottom >= cy; }); };
+      c.classList.toggle('es-oscuro', sobre(c.querySelector('.carril__pista')));
+      nEl.parentNode.classList.toggle('es-claro', sobre(nEl.parentNode));
+      nombreEl.classList.toggle('es-claro', sobre(nombreEl));
+    }
+    function pedir() { if (!pendiente) { pendiente = true; requestAnimationFrame(actualizar); } }
+    listar(); actualizar();
+    window.addEventListener('scroll', pedir, { passive: true });
+    window.addEventListener('resize', function () { listar(); pedir(); });
+    document.addEventListener('densidad-cambiada', function () { setTimeout(function () { listar(); pedir(); }, 120); });
+    /* el módulo de casos se pinta tarde (fetch): volver a contar */
+    if ('MutationObserver' in window) new MutationObserver(function () { listar(); pedir(); }).observe(document.querySelector('main'), { attributes: true, subtree: true, attributeFilter: ['hidden'] });
+    Aurea.carril = function () { return { n: nEl.textContent, total: totalEl.textContent, nombre: nombreEl.textContent, visible: c.classList.contains('es-visible'), oscuro: c.classList.contains('es-oscuro'), p: parseFloat(c.style.getPropertyValue('--p')) || 0 }; };
   })();
 
   /* ───────────────── paso entre páginas: la hoja cruza en vez de un corte seco ───────────────── */
