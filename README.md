@@ -62,8 +62,8 @@ Sale de su logo, que es bueno y no se toca. Es un monograma **AF**: el asta de l
 
 | Dónde | Qué hace la corona o la hoja |
 |---|---|
-| **Cortina** (tinta, ~2,2 s) | Las dos ramas crecen desde el tallo hacia arriba por recorte (`clip-path`, nada de trazo), la derecha 0,15 s después. Las **12 hojas de cada rama** se doran una a una, de abajo arriba (copia dorada, solo opacidad). El monograma cae por recorte de arriba abajo. La balanza llega quieta. Después el panel tinta sube con `expo.inOut` y el borde curvo se aplana. La corona de la cortina está **exactamente** donde va la del hero y pasa de oro a tinta justo cuando el borde del panel le pasa por encima: la cortina «deja» la corona en el hero. |
-| **Hero** | La corona con el monograma, su nombre completo con char-reveal y «ABOGADA» cerrando su espaciado. |
+| **Cortina** «Tapa dorada» (tinta, ~3 s) | La tapa de un libro de leyes en piel oscura con **su nombre grabado** («Áurea Mª Fernández · Abogada · Valverde de Leganés · Badajoz») entre filetes de encuadernación, casi invisible. Un haz de luz lo recorre y lo deja en pan de oro; después la tapa gira sobre el lomo y se funde. **Sin corona a propósito**: el logo se forma una sola vez, en el hero (antes salía en las dos y se repetía). |
+| **Hero** | La bandada: las 24 hojas vuelan y forman la corona con el monograma; luego hojas sueltas al viento. Su nombre completo con char-reveal y «ABOGADA» cerrando su espaciado. |
 | **Áreas** | Al posarse cada tarjeta de la pila, su hoja se dora. Arriba, un índice de 5 hojas marca la tarjeta en curso. |
 | **Viñetas y separadores** | La hoja suelta, recortada del propio PNG. Ninguna hoja es inventada. |
 | **Marquee** | Sobre tinta, con la hoja dorada de separador. |

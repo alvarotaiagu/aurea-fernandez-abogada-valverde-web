@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    Áurea Mª Fernández · «Laurel»
-   La corona de su logo abre la página (cortina: las ramas crecen, las hojas se
-   doran de abajo arriba, el monograma cae y la corona se queda en el hero) y
-   la cierra (pie). La hoja suelta marca el área en curso. El oro, solo cuando
+   La página se abre como la tapa de un libro de leyes con su nombre grabado
+   en oro (cortina, sin corona); la corona se forma una sola vez, en el hero
+   (bandada), y la cierra (pie). La hoja suelta marca el área en curso. El oro, solo cuando
    algo se activa. La balanza del monograma NO se anima nunca.
 
    Banderas separadas a propósito:
@@ -159,7 +159,7 @@
     cuandoVisible([el], 0.3, function () { revelar(el, piezas); });
   });
 
-  /* ───────────────── cortina A · tapa dorada: la corona grabada se dora y la tapa se abre ───────────────── */
+  /* ───────────────── cortina A · tapa dorada: su nombre grabado se dora y la tapa se abre ───────────────── */
   var cortinaAbierta = false;
   function avisarApertura() {
     if (cortinaAbierta) return;
@@ -177,8 +177,7 @@
     var sombra = document.getElementById('cortina-sombra');
     var brillo = document.getElementById('cortina-brillo');
     var oro = document.getElementById('cortina-oro-pleno');
-    var nombre = cort.querySelector('.cortina__nombre span');
-    var pie = cort.querySelector('.cortina__abogada');
+    var estampa = document.getElementById('cortina-estampa');
     var liberada = false, hecho = false;
 
     /* la tapa ya se ha abierto: se puede bajar aunque falte el último fundido */
@@ -220,9 +219,8 @@
 
     var SALE = 1.8;
     var tl = gsap.timeline({ paused: true, onComplete: retirar });
-    /* 1 · el nombre sube de su máscara y «ABOGADA» asienta · 2 · la luz recorre la corona grabada */
-    tl.fromTo(nombre, { y: 0, yPercent: 110 }, { y: 0, yPercent: 0, duration: 1, ease: 'expo.out', immediateRender: false }, 0.25)
-      .fromTo(pie, { letterSpacing: '1.1em', opacity: 0 }, { letterSpacing: '.6em', opacity: 1, duration: 1.1, ease: 'expo.out', immediateRender: false }, 0.45)
+    /* 1 · el grabado asoma en la piel (casi invisible) · 2 · la luz lo recorre y lo dora */
+    tl.fromTo(estampa, { opacity: 0, scale: 1.025 }, { opacity: 1, scale: 1, duration: 0.9, ease: 'power2.out', immediateRender: false }, 0)
       .to(luz, { p: -20, duration: 1.35, ease: 'power2.inOut', onUpdate: ponerLuz }, 0.2)
     /* 3 · el oro se queda entero (fundido de la copia plena; el brillo se va) */
       .to(brillo, { opacity: 0, duration: 0.35 }, 1.45)

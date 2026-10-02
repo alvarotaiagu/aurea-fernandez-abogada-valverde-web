@@ -196,7 +196,7 @@ try {
         return {
           display: getComputedStyle(c).display, panel: getComputedStyle(panel).backgroundColor, h: innerHeight, giro: (function () { const t = getComputedStyle(panel).transform; if (t.indexOf('matrix3d(') !== 0) return 0; const a = t.slice(9, -1).split(',').map(Number); return Math.atan2(-a[2], a[0]) * 180 / Math.PI; })(), opTapa: +getComputedStyle(panel).opacity,
           luz: window.Aurea && window.Aurea.cortinaLuz ? window.Aurea.cortinaLuz() : 120, oroDer: (function () { const cp = getComputedStyle(document.getElementById('cortina-oro-pleno')).clipPath; if (cp === 'none') return 0; const p = cp.slice(cp.indexOf('(') + 1, cp.indexOf(')')).trim().split(' '); return parseFloat(p[1] || p[0]); })(), sombra: +getComputedStyle(document.getElementById('cortina-sombra')).opacity,
-          nombre: mtx(c.querySelector('.cortina__nombre span'))[5] / (c.querySelector('.cortina__nombre span').offsetHeight || 1),
+          estampa: +getComputedStyle(document.getElementById('cortina-estampa')).opacity,
           lejos, oroMedio: hojas.reduce((s, h) => s + +getComputedStyle(h).opacity, 0) / hojas.length,
           base: +getComputedStyle(document.querySelector('.hero__rama > use:not(.hero__hoja)')).opacity,
           mono: clipMono[2] || 0,
@@ -219,10 +219,11 @@ try {
     const al = muestras.find(m => m.t < 300);
     const fondoHero = await page.evaluate(() => getComputedStyle(document.getElementById('inicio')).backgroundColor);
     comprobar(al && al.display === 'block' && /21, 20, 18/.test(al.panel) && al.panel !== fondoHero, 'checklist 5 · cortina: tapa al cargar, en tinta (' + (al && al.panel) + '), distinta del hero marfil');
-    comprobar(muestras.some(m => m.display === 'block' && m.luz > 20 && m.luz < 80) && muestras.some(m => m.display === 'block' && Math.abs(m.nombre) < 0.05 && Math.abs(m.giro) < 1), 'cortina A · 1-3: la luz recorre la corona grabada y el nombre sube de su máscara, con la tapa aún cerrada');
+    comprobar(muestras.some(m => m.display === 'block' && m.luz > 20 && m.luz < 80) && muestras.some(m => m.display === 'block' && m.estampa > 0.98 && Math.abs(m.giro) < 1), 'cortina A · 1-3: la luz recorre el nombre grabado, con la tapa aún cerrada');
+    comprobar(await page.evaluate(() => !document.querySelector('#cortina use[href^="#laurel"], #cortina use[href="#monograma"], #cortina use[href^="#hoja"]') && /Fernández/.test(document.getElementById('tapa-grabado').textContent)), 'cortina A · la tapa lleva su nombre y NO el logo: la corona se forma una sola vez, en el hero');
     const oroLleno = muestras.find(m => m.display === 'block' && m.oroDer < 0.5 && Math.abs(m.giro) < 1);
     const oroMedio = muestras.find(m => m.display === 'block' && m.oroDer > 10 && m.oroDer < 90);
-    comprobar(!!oroMedio && !!oroLleno, 'cortina A · el oro se queda pintado detrás del haz de luz y la corona acaba entera en oro antes de abrirse');
+    comprobar(!!oroMedio && !!oroLleno, 'cortina A · el oro se queda pintado detrás del haz de luz y el grabado acaba entero en oro antes de abrirse');
     const medias = muestras.find(m => m.display === 'block' && m.giro < -20 && m.giro > -88 && m.opTapa > 0.5);
     comprobar(!!medias && muestras.some(m => m.sombra > 0.5), 'cortina A · 4 · fotograma a medias: la tapa abriéndose sobre el lomo (' + (medias ? Math.round(medias.giro) + 'º' : '—') + ') y su sombra sobre la página');
     comprobar(muestras.every(m => m.display !== 'block' || m.giro > -105.5), 'cortina A · la tapa no pasa de ~104º (nunca se queda de canto a 90º: se funde)');

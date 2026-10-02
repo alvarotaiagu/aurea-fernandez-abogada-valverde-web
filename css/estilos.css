@@ -190,14 +190,15 @@ html.con-js.cortina-fuera .cortina { display: none; }
   display: grid; place-content: center; justify-items: center; gap: clamp(.8rem, 2.2vh, 1.3rem);
   color: var(--marfil); text-align: center;
 }
-/* la corona grabada: relieve con dos copias desplazadas (sombra y luz), sin filtros */
-.cortina__estampa { position: relative; width: clamp(150px, min(30vw, 32vh), 300px); aspect-ratio: 1006 / 818; }
+/* el nombre grabado con filetes de encuadernación (sin corona: el logo se forma
+   solo en el hero); relieve con dos copias desplazadas (sombra y luz), sin filtros */
+.cortina__estampa { position: relative; width: min(88vw, 640px, 105vh); aspect-ratio: 900 / 600; }
 .cortina__estampa svg { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; overflow: visible; }
-.cortina__relieve .sombra-r { fill: rgba(0, 0, 0, .55); }
-.cortina__relieve .luz-r { fill: rgba(246, 242, 234, .07); }
-.cortina__relieve .cara-r { fill: #1E1C18; }
+.cortina__relieve .sombra-r { fill: rgba(0, 0, 0, .55); stroke: rgba(0, 0, 0, .55); }
+.cortina__relieve .luz-r { fill: rgba(246, 242, 234, .07); stroke: rgba(246, 242, 234, .07); }
+.cortina__relieve .cara-r { fill: #1E1C18; stroke: #1E1C18; }
 /* el haz de luz descubre el oro (máscara en movimiento) y después el oro queda entero */
-.cortina__brillo, .cortina__oro { fill: url(#cortina-oro); }
+.cortina__brillo, .cortina__oro { fill: url(#cortina-oro); stroke: url(#cortina-oro); }
 .cortina__brillo {
   -webkit-mask-image: linear-gradient(100deg, transparent 0 36%, #000 47%, #000 53%, transparent 64% 100%);
           mask-image: linear-gradient(100deg, transparent 0 36%, #000 47%, #000 53%, transparent 64% 100%);
@@ -206,11 +207,7 @@ html.con-js.cortina-fuera .cortina { display: none; }
   -webkit-mask-position: 120% 0; mask-position: 120% 0;
 }
 .con-js .cortina__oro { clip-path: inset(0 100% 0 0); }
-.cortina__nombre { overflow: hidden; padding: .12em .05em .06em; font: 700 clamp(1.7rem, 4.6vw, 3.2rem)/1.1 var(--tipo-rotulo); }
-.cortina__nombre span { display: inline-block; }
-.con-js .cortina__nombre span { transform: translateY(110%); }
-.cortina__abogada { font: 600 clamp(.8rem, 1.3vw, 1rem)/1 var(--tipo-rotulo); letter-spacing: .6em; margin-left: .6em; text-transform: uppercase; color: var(--oro-claro); }
-.con-js .cortina__abogada { opacity: 0; }
+.con-js .cortina__estampa { opacity: 0; }
 
 /* ═══════════════ cabecera ═══════════════ */
 .cabecera {
