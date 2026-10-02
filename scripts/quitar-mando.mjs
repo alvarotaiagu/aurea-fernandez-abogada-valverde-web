@@ -39,7 +39,8 @@ function cortar(t, desde, hasta, archivo, linea = true) {
 function editar(rel, cambios, maxPerdida, opcional = false) {
   const ruta = path.join(raiz, rel);
   if (!fs.existsSync(ruta)) { if (opcional) { console.log('no está ' + rel + ' (módulo quitado)'); return; } throw new Error('falta ' + rel); }
-  const antes = fs.readFileSync(ruta, 'utf8');
+  /* con autocrlf, Windows saca CRLF y las marcas buscan \n */
+  const antes = fs.readFileSync(ruta, 'utf8').replace(/\r\n/g, '\n');
   let t = antes;
   for (const c of cambios) t = c(t);
   if (t.length < antes.length * (1 - maxPerdida)) throw new Error('Me niego: ' + rel + ' perdería demasiado');
